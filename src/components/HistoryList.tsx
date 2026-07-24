@@ -1,11 +1,14 @@
-import { Trash2 } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Trash2, Check, X } from 'lucide-react'
 import type { HistoryRecord } from '../types/qimen'
+import { Card } from './Card'
 
 interface HistoryListProps {
   records: HistoryRecord[]
   onSelect: (record: HistoryRecord) => void
   onDelete: (id: string) => void
   onClearAll: () => void
+  onUpdateNote: (id: string, note: string) => void
 }
 
 function formatTime(iso: string): string {
@@ -22,75 +25,175 @@ function formatTime(iso: string): string {
   }
 }
 
+function HistoryItem({
+  record,
+  onSelect,
+  onDelete,
+  onUpdateNote,
+}: {
+  record: HistoryRecord
+  onSelect: () => void
+  onDelete: () => void
+  onUpdateNote: (note: string) => void
+}) {
+  const [offset, setOffset] = useState(0)
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(record.note ?? '')
+  const startX = useRef(0)
+
+  const harmsText =
+    record.harms.length > 0
+      ? record.harms.map((h) => h.type).join('、')
+      : '無'
+
+  return (
+    <li className="relative overflow-hidden rounded-[16px]">
+      <div className="absolute inset-y-0 right-0 flex w-20 items-center justify-center bg-[var(--color-wine)]">
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-label="刪除"
+          className="flex h-full w-full items-center justify-center text-white"
+        >
+          <Trash2 className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div
+        className="relative bg-[var(--color-surface)] p-4 transition-transform duration-200"
+        style={{ transform: `translateX(${offset}px)` }}
+        onTouchStart={(e) => {
+          startX.current = e.touches[0].clientX
+        }}
+        onTouchMove={(e) => {
+          const dx = e.touches[0].clientX - startX.current
+          if (dx < 0) setOffset(Math.max(dx, -80))
+          else setOffset(0)
+        }}
+        onTouchEnd={() => {
+          setOffset((v) => (v < -40 ? -80 : 0))
+        }}
+      >
+        <button type="button" onClick={onSelect} className="w-full text-left">
+          <p className="break-all font-mono text-[22px] tracking-[0.2em] text-[var(--color-ink)]">
+            {record.normalizedCode}
+          </p>
+          <p className="mt-2 text-[16px] text-[var(--color-muted)]">
+            {formatTime(record.createdAt)}
+          </p>
+          <p className="mt-2 text-[18px] text-[var(--color-ink)]">
+            宮位：{record.palaceNumber}
+            {record.palaceName}
+          </p>
+          <p className="mt-1 text-[18px] text-[var(--color-ink)]">
+            四害：{harmsText}
+          </p>
+          {!editing && record.note && (
+            <p className="mt-2 break-words text-[18px] text-[var(--color-muted)]">
+              備註：{record.note}
+            </p>
+          )}
+        </button>
+
+        {editing ? (
+          <div className="mt-3 space-y-2">
+            <textarea
+              value={draft}
+              maxLength={100}
+              rows={2}
+              onChange={(e) => setDraft(e.target.value.slice(0, 100))}
+              className="w-full resize-none rounded-[12px] bg-white px-3 py-2 text-[18px] outline-none ring-1 ring-[var(--color-line)]"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onUpdateNote(draft.trim())
+                  setEditing(false)
+                }}
+                className="btn-press inline-flex h-11 flex-1 items-center justify-center gap-1 rounded-[12px] bg-[var(--color-wine)] text-white"
+              >
+                <Check className="h-4 w-4" />
+                儲存備註
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft(record.note ?? '')
+                  setEditing(false)
+                }}
+                className="btn-press inline-flex h-11 w-11 items-center justify-center rounded-[12px] bg-white ring-1 ring-[var(--color-line)]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 flex justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setDraft(record.note ?? '')
+                setEditing(true)
+              }}
+              className="min-h-[44px] text-[16px] text-[var(--color-wine)]"
+            >
+              {record.note ? '修改備註' : '新增備註'}
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              aria-label="刪除此筆"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center text-[var(--color-muted)]"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </li>
+  )
+}
+
 export function HistoryList({
   records,
   onSelect,
   onDelete,
   onClearAll,
+  onUpdateNote,
 }: HistoryListProps) {
   return (
-    <section className="w-full overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-medium text-neutral-800">歷史紀錄</h2>
-        {records.length > 0 && (
+    <Card
+      title="歷史紀錄"
+      action={
+        records.length > 0 ? (
           <button
             type="button"
             onClick={onClearAll}
-            className="min-h-[44px] rounded border border-neutral-400 px-3 text-sm text-neutral-700 hover:border-red-800 hover:text-red-900"
+            className="min-h-[44px] text-[16px] text-[var(--color-wine)]"
           >
             全部清除
           </button>
-        )}
-      </div>
-
+        ) : undefined
+      }
+    >
       {records.length === 0 ? (
-        <p className="mt-3 text-sm text-neutral-500">尚無紀錄。</p>
+        <p className="text-[18px] text-[var(--color-muted)]">
+          尚無紀錄。排盤完成後可選擇儲存。
+        </p>
       ) : (
-        <ul className="mt-3 space-y-2">
+        <ul className="space-y-3">
           {records.map((record) => (
-            <li
+            <HistoryItem
               key={record.id}
-              className="overflow-hidden rounded border border-neutral-300 bg-white p-3"
-            >
-              <button
-                type="button"
-                onClick={() => onSelect(record)}
-                className="w-full min-h-[44px] text-left"
-              >
-                <p className="break-all font-mono text-sm tracking-wider text-black">
-                  {record.normalizedCode}
-                </p>
-                <p className="mt-1 text-xs text-neutral-500">
-                  {formatTime(record.createdAt)}
-                </p>
-                <p className="mt-1 break-words text-sm text-neutral-800">
-                  {record.palaceNumber}
-                  {record.palaceName} · {record.god} · {record.star} ·{' '}
-                  {record.door}
-                </p>
-                <p className="mt-0.5 break-words text-xs text-neutral-600">
-                  天{record.heavenStem ?? '（空）'} / 地
-                  {record.earthStem ?? '（空）'}
-                  {record.isEmptyVoid ? ' · 空亡' : ''}
-                  {record.harms.length > 0
-                    ? ` · ${record.harms.map((h) => h.type).join('、')}`
-                    : ''}
-                </p>
-              </button>
-              <div className="mt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => onDelete(record.id)}
-                  aria-label="刪除此筆紀錄"
-                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded border border-neutral-300 text-neutral-600 hover:border-red-800 hover:text-red-900"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </li>
+              record={record}
+              onSelect={() => onSelect(record)}
+              onDelete={() => onDelete(record.id)}
+              onUpdateNote={(note) => onUpdateNote(record.id, note)}
+            />
           ))}
         </ul>
       )}
-    </section>
+    </Card>
   )
 }

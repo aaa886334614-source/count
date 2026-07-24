@@ -1,5 +1,6 @@
 import { STEM_CHOICES } from '../constants/mappings'
 import type { StemChoice } from '../types/qimen'
+import { Card } from './Card'
 
 interface StemSelectorProps {
   label: string
@@ -9,12 +10,11 @@ interface StemSelectorProps {
 
 export function StemSelector({ label, value, onChange }: StemSelectorProps) {
   return (
-    <section className="space-y-2 rounded border border-neutral-300 bg-neutral-50 p-3">
-      <h3 className="text-sm font-medium text-neutral-900">{label}</h3>
-      <p className="text-xs text-neutral-500">
+    <Card title={label}>
+      <p className="mb-4 text-[18px] text-[var(--color-muted)]">
         數字為 1，請選擇甲、戊或癸後才能完成排盤。
       </p>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-3">
         {STEM_CHOICES.map((opt) => {
           const active = value === opt
           return (
@@ -22,10 +22,10 @@ export function StemSelector({ label, value, onChange }: StemSelectorProps) {
               key={opt}
               type="button"
               onClick={() => onChange(opt)}
-              className={`min-h-[44px] rounded border text-base font-medium transition-colors ${
+              className={`btn-press h-[60px] rounded-[16px] text-[22px] font-semibold ${
                 active
-                  ? 'border-black bg-black text-white'
-                  : 'border-neutral-400 bg-white text-black hover:border-black'
+                  ? 'bg-[var(--color-wine)] text-white'
+                  : 'bg-[var(--color-surface)] text-[var(--color-ink)] ring-1 ring-[var(--color-line)]'
               }`}
             >
               {opt}
@@ -33,6 +33,6 @@ export function StemSelector({ label, value, onChange }: StemSelectorProps) {
           )
         })}
       </div>
-    </section>
+    </Card>
   )
 }

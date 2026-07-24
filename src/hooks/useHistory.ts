@@ -16,8 +16,8 @@ export function useHistory() {
     setStorageOk(ok)
   }, [records])
 
-  const addFromResult = useCallback((result: PalaceResult) => {
-    const record = createHistoryRecord(result)
+  const addFromResult = useCallback((result: PalaceResult, note?: string) => {
+    const record = createHistoryRecord(result, note)
     setRecords((prev) => prependHistory(prev, record))
     return record
   }, [])

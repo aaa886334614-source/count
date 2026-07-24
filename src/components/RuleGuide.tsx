@@ -1,54 +1,63 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 
 export function RuleGuide() {
   const [open, setOpen] = useState(false)
 
   return (
-    <section className="rounded border border-neutral-300 bg-white">
+    <section className="card-fade overflow-hidden rounded-[20px] bg-white shadow-[var(--shadow-card)]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full min-h-[44px] items-center justify-between px-3 py-2 text-left"
+        className="flex w-full min-h-[60px] items-center justify-between px-6 py-4 text-left"
+        aria-expanded={open}
       >
-        <span className="text-sm font-medium text-neutral-800">規則說明</span>
-        {open ? (
-          <ChevronUp className="h-4 w-4 text-neutral-600" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-neutral-600" />
-        )}
+        <span className="text-[28px] font-bold text-[var(--color-ink)]">
+          規則說明
+        </span>
+        <ChevronDown
+          className={`h-6 w-6 text-[var(--color-muted)] transition-transform duration-300 ${
+            open ? 'rotate-180' : ''
+          }`}
+        />
       </button>
-      {open && (
-        <div className="space-y-3 border-t border-neutral-200 px-3 py-3 text-sm leading-relaxed text-neutral-700">
-          <div>
-            <p className="font-medium text-black">六位順序</p>
-            <p>宮位 → 八神 → 九星 → 八門 → 天盤干 → 地盤干</p>
-          </div>
-          <div>
-            <p className="font-medium text-black">字母轉數字</p>
-            <p>
-              AJS=1、BKT=2、CLU=3、DMV=4、ENW=5、FOX=6、GPY=7、HQZ=8、IR=9
-            </p>
-          </div>
-          <div>
-            <p className="font-medium text-black">天干數字</p>
-            <p>
-              0 為空亡（位置留白並顯示 ○）；1 需選甲／戊／癸；2–9 為乙至壬。
-            </p>
-          </div>
-          <div>
-            <p className="font-medium text-black">對照表檔案</p>
-            <p className="break-all">src/constants/mappings.ts</p>
-          </div>
-          <div>
-            <p className="font-medium text-black">四害規則檔案</p>
-            <p className="break-all">src/constants/harmRules.ts</p>
-            <p className="mt-1">
-              門迫、擊刑、入墓僅在設定表有明確規則時判定；空亡依數字 0 判斷。
-            </p>
+
+      <div className="accordion-panel" data-open={open ? 'true' : 'false'}>
+        <div>
+          <div className="space-y-5 border-t border-[var(--color-line)] px-6 pb-6 pt-5 text-[18px] leading-relaxed text-[var(--color-muted)]">
+            <div>
+              <p className="mb-1 font-semibold text-[var(--color-ink)]">
+                六位順序
+              </p>
+              <p>宮位 → 八神 → 九星 → 八門 → 天盤干 → 地盤干</p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-[var(--color-ink)]">
+                字母轉數字
+              </p>
+              <p>
+                AJS=1、BKT=2、CLU=3、DMV=4、ENW=5、FOX=6、GPY=7、HQZ=8、IR=9
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-[var(--color-ink)]">
+                天干數字
+              </p>
+              <p>
+                0 為空亡（位置留白並顯示 ○）；1 需選甲／戊／癸；2–9 為乙至壬。
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold text-[var(--color-ink)]">
+                對照與四害
+              </p>
+              <p className="break-all">
+                mappings.ts / harmRules.ts — 僅在設定表有明確規則時判定門迫、擊刑、入墓。
+              </p>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </section>
   )
 }

@@ -67,6 +67,7 @@ export interface HistoryRecord {
   isEmptyVoid: boolean
   emptyVoidRemedy: EmptyVoidRemedy | null
   harms: DetectedHarm[]
+  note?: string
 }
 
 export interface ParseSuccess {

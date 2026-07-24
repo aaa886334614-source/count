@@ -21,30 +21,33 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 sm:items-center"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-title"
     >
-      <div className="w-full max-w-sm rounded border border-neutral-400 bg-white p-4 shadow-lg">
-        <h3 id="confirm-title" className="text-base font-semibold text-black">
+      <div className="card-fade w-full max-w-sm rounded-[20px] bg-white p-6 shadow-[var(--shadow-card)]">
+        <h3
+          id="confirm-title"
+          className="text-[28px] font-bold text-[var(--color-ink)]"
+        >
           {title}
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-neutral-700">
+        <p className="mt-3 text-[18px] leading-relaxed text-[var(--color-muted)]">
           {message}
         </p>
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-6 grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="min-h-[44px] rounded border border-neutral-400 bg-white text-sm text-black"
+            className="btn-press h-[60px] rounded-[16px] bg-[var(--color-surface)] text-[18px] font-medium text-[var(--color-ink)]"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="min-h-[44px] rounded border border-red-900 bg-red-900 text-sm text-white"
+            className="btn-press h-[60px] rounded-[16px] bg-[var(--color-wine)] text-[18px] font-semibold text-white"
           >
             {confirmLabel}
           </button>

@@ -1,73 +1,91 @@
 import type { PalaceResult } from '../types/qimen'
+import { Card } from './Card'
 
 interface SinglePalaceCardProps {
   result: PalaceResult
 }
 
 /**
- * 教材式單宮方格：
- * 左上八神、右上空亡○、左中天盤、右中九星、左下地盤、右下八門、下方中央宮位
+ * 教材式單宮：CSS Grid 排版
+ * 左上八神｜右上空亡○
+ * 左中天盤｜右中九星
+ * 左下地盤｜右下八門
+ * 底部中央宮位
  */
 export function SinglePalaceCard({ result }: SinglePalaceCardProps) {
   const stemText = (v: string | null, needs: boolean) => {
     if (needs) return '待選'
-    return v ?? ''
+    return v ?? '\u00A0'
   }
 
   return (
-    <section className="w-full">
-      <h2 className="mb-2 text-sm font-medium text-neutral-800">單宮結果</h2>
-      <div className="mx-auto w-full max-w-[320px]">
+    <Card title="單宮結果">
+      <div className="mx-auto w-[90%] max-w-[420px]">
         <div
-          className="relative aspect-square w-full border-2 border-black bg-white"
-          style={{ minHeight: 260 }}
+          className="grid aspect-square w-full grid-cols-2 grid-rows-[1.1fr_1fr_1fr_1.2fr] gap-3 rounded-[20px] bg-[var(--color-surface)] p-6 ring-1 ring-[var(--color-line)]"
+          aria-label="單宮盤"
         >
-          {/* 右上角空亡 ○ */}
-          {result.isEmptyVoid && (
-            <span
-              className="absolute right-3 top-3 text-2xl leading-none text-black"
-              aria-label="空亡"
-            >
-              ○
-            </span>
-          )}
-
           {/* 左上：八神 */}
-          <div className="absolute left-3 top-3 max-w-[45%] break-words text-base font-medium text-black">
-            {result.god}
+          <div className="flex items-start justify-start self-start">
+            <span className="break-words text-[32px] font-semibold leading-tight text-[var(--color-ink)]">
+              {result.god}
+            </span>
+          </div>
+
+          {/* 右上：空亡 ○ */}
+          <div className="flex items-start justify-end self-start">
+            {result.isEmptyVoid ? (
+              <span
+                className="text-[32px] leading-none text-[var(--color-ink)]"
+                aria-label="空亡"
+              >
+                ○
+              </span>
+            ) : (
+              <span className="invisible text-[32px]">○</span>
+            )}
           </div>
 
           {/* 左中：天盤干 */}
-          <div className="absolute left-3 top-[32%] max-w-[40%] break-words text-xl font-semibold text-black">
-            {stemText(result.heavenStem, result.needsHeavenChoice)}
+          <div className="flex items-center justify-start">
+            <span className="break-words text-[32px] font-semibold leading-tight text-[var(--color-ink)]">
+              {stemText(result.heavenStem, result.needsHeavenChoice)}
+            </span>
           </div>
 
           {/* 右中：九星 */}
-          <div className="absolute right-3 top-[32%] max-w-[45%] text-right break-words text-base text-black">
-            {result.star}
+          <div className="flex items-center justify-end text-right">
+            <span className="break-words text-[28px] font-medium leading-tight text-[var(--color-ink)]">
+              {result.star}
+            </span>
           </div>
 
           {/* 左下：地盤干 */}
-          <div className="absolute bottom-[28%] left-3 max-w-[40%] break-words text-xl font-semibold text-black">
-            {stemText(result.earthStem, result.needsEarthChoice)}
+          <div className="flex items-center justify-start">
+            <span className="break-words text-[32px] font-semibold leading-tight text-[var(--color-ink)]">
+              {stemText(result.earthStem, result.needsEarthChoice)}
+            </span>
           </div>
 
           {/* 右下：八門 */}
-          <div className="absolute bottom-[28%] right-3 max-w-[45%] text-right break-words text-base text-black">
-            {result.door}
+          <div className="flex items-center justify-end text-right">
+            <span className="break-words text-[28px] font-medium leading-tight text-[var(--color-ink)]">
+              {result.door}
+            </span>
           </div>
 
-          {/* 下方中央：宮位 */}
-          <div className="absolute bottom-3 left-0 right-0 text-center">
-            <span className="text-lg font-semibold tracking-wide text-black">
+          {/* 底部中央：宮位 */}
+          <div className="col-span-2 flex items-end justify-center pb-1">
+            <span className="text-[40px] font-bold leading-none tracking-wide text-[var(--color-ink)]">
               {result.palaceNumber} {result.palaceName}
             </span>
           </div>
         </div>
-        <p className="mt-2 text-center font-mono text-xs tracking-widest text-neutral-500">
+
+        <p className="mt-4 text-center font-mono text-[18px] tracking-[0.28em] text-[var(--color-muted)]">
           {result.normalizedCode}
         </p>
       </div>
-    </section>
+    </Card>
   )
 }

@@ -1,5 +1,20 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-wine: #7a1f2b;
+  --color-wine-dark: #5c1620;
+  --color-wine-soft: #f7eef0;
+  --color-ink: #111111;
+  --color-muted: #6b6b6b;
+  --color-line: #e8e8e8;
+  --color-surface: #f7f7f8;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04);
+  --radius-card: 20px;
+  --radius-btn: 16px;
+  --pad-card: 24px;
+  --gap-section: 24px;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
@@ -10,13 +25,18 @@
     min-width: 320px;
     overflow-x: hidden;
     background: #ffffff;
-    color: #000000;
+    color: var(--color-ink);
     font-family:
+      -apple-system,
+      BlinkMacSystemFont,
+      'SF Pro Text',
       'PingFang TC',
       'Noto Sans TC',
-      'Microsoft JhengHei',
-      system-ui,
+      'Helvetica Neue',
       sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
 
   #root {
@@ -25,11 +45,58 @@
   }
 
   button,
-  input {
+  input,
+  textarea {
     font: inherit;
   }
 
   * {
     box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .card-fade {
+    animation: card-fade-in 0.35s ease-out both;
+  }
+
+  .btn-press {
+    transition:
+      transform 0.15s ease,
+      background-color 0.15s ease,
+      opacity 0.15s ease;
+  }
+
+  .btn-press:hover {
+    filter: brightness(1.05);
+  }
+
+  .btn-press:active {
+    transform: scale(0.97);
+  }
+
+  .accordion-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.28s ease;
+  }
+
+  .accordion-panel[data-open='true'] {
+    grid-template-rows: 1fr;
+  }
+
+  .accordion-panel > div {
+    overflow: hidden;
+  }
+}
+
+@keyframes card-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

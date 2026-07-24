@@ -1,3 +1,5 @@
+import { Card } from './Card'
+
 interface CodeInputProps {
   value: string
   onChange: (value: string) => void
@@ -10,13 +12,7 @@ export function CodeInput({
   normalizedPreview,
 }: CodeInputProps) {
   return (
-    <section className="space-y-2">
-      <label
-        htmlFor="six-code"
-        className="block text-sm font-medium text-neutral-800"
-      >
-        六位碼輸入
-      </label>
+    <Card title="六位碼輸入">
       <input
         id="six-code"
         type="text"
@@ -27,18 +23,17 @@ export function CodeInput({
         onChange={(e) => onChange(e.target.value)}
         onPaste={(e) => {
           e.preventDefault()
-          const text = e.clipboardData.getData('text')
-          onChange(text)
+          onChange(e.clipboardData.getData('text'))
         }}
-        placeholder="例如 198902 或 AIHZAB"
-        className="box-border w-full min-h-[44px] rounded border border-neutral-400 bg-white px-3 py-2 font-mono text-lg tracking-[0.18em] text-black outline-none focus:border-black"
+        placeholder="例如 198902"
+        className="box-border h-[60px] w-full rounded-[16px] border-0 bg-[var(--color-surface)] px-4 text-center font-mono text-[28px] tracking-[0.35em] text-[var(--color-ink)] outline-none ring-1 ring-[var(--color-line)] placeholder:tracking-normal placeholder:text-[var(--color-muted)] focus:ring-2 focus:ring-[var(--color-wine)]"
       />
-      <p className="text-xs text-neutral-500 break-all">
-        正規化預覽：{normalizedPreview || '—'}
+      <p className="mt-4 break-all text-center text-[18px] text-[var(--color-muted)]">
+        正規化：{normalizedPreview || '—'}
       </p>
-      <p className="text-xs text-neutral-500 leading-relaxed">
-        支援半形／全形數字與英文字母；空白會自動移除。第 1–6 位依序為：宮位、八神、九星、八門、天盤干、地盤干。
+      <p className="mt-3 text-[18px] leading-relaxed text-[var(--color-muted)]">
+        支援半形／全形數字與英文字母。順序：宮位、八神、九星、八門、天盤干、地盤干。
       </p>
-    </section>
+    </Card>
   )
 }

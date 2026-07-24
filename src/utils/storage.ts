@@ -41,7 +41,11 @@ export function saveHistory(records: HistoryRecord[]): boolean {
   }
 }
 
-export function createHistoryRecord(result: PalaceResult): HistoryRecord {
+export function createHistoryRecord(
+  result: PalaceResult,
+  note?: string,
+): HistoryRecord {
+  const trimmed = note?.trim()
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     createdAt: new Date().toISOString(),
@@ -59,6 +63,7 @@ export function createHistoryRecord(result: PalaceResult): HistoryRecord {
     isEmptyVoid: result.isEmptyVoid,
     emptyVoidRemedy: result.emptyVoidRemedy,
     harms: result.harms,
+    note: trimmed ? trimmed.slice(0, 100) : undefined,
   }
 }
 
