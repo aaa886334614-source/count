@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Trash2, Check, X, Star } from 'lucide-react'
 import type { HistoryRecord } from '../types/qimen'
+import { formatRemedyAnimal } from '../utils/formatRemedyAnimal'
 import { Card } from './Card'
 
 interface HistoryListProps {
@@ -34,10 +35,11 @@ function harmSummary(record: HistoryRecord): string {
 }
 
 function remedySummary(record: HistoryRecord): string {
-  const animals = record.harms
+  const labels = record.harms
     .map((h) => h.remedyAnimal)
     .filter((a): a is string => Boolean(a))
-  return animals.length > 0 ? animals.join('、') : '—'
+    .map((a) => formatRemedyAnimal(a))
+  return labels.length > 0 ? labels.join('、') : '—'
 }
 
 function HistoryItem({

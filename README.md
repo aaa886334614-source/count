@@ -54,11 +54,12 @@ npm run self-check
 
 嚴重度：門迫(4) > 擊刑(3) > 入墓(2) = 空無(2)
 
-- **門迫**：白名單宮×門；化解見 `DOOR_REMEDY_ANIMALS`（如生門→豬）  
-- **擊刑／入墓**：`STEM_HARM_RULES`（類型＋宮＋干 → 化解動物）  
+- **門迫**：白名單宮×門；化解動物見 `DOOR_REMEDY_ANIMALS`（儲存如「豬」）  
+- **擊刑／入墓**：`STEM_HARM_RULES`（類型＋宮＋干 → 動物）  
 - **空無**：僅第5／6位為0  
+- **化解提示顯示**：一律 `地支（動物）`，由 `formatRemedyAnimal` 產生（如豬→亥（豬））；localStorage 仍只存動物名  
 
-規則檔：`src/constants/harmRules.ts`
+規則檔：`src/constants/harmRules.ts`｜顯示：`src/utils/formatRemedyAnimal.ts`
 
 ## 儲存
 

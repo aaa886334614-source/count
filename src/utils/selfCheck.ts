@@ -8,6 +8,7 @@ import {
   stemChoiceRequirements,
 } from './calculatePalace'
 import { createHistoryRecord, loadHistory, saveHistory } from './storage'
+import { formatRemedyAnimal } from './formatRemedyAnimal'
 import { HISTORY_STORAGE_KEY } from '../constants/mappings'
 import type { DetectedHarm, HarmType, PalaceResult } from '../types/qimen'
 
@@ -43,10 +44,29 @@ function dump(label: string, r: PalaceResult) {
     `  顯示=${r.palaceInputDigit}${r.palaceName} 標準=${r.palaceNumber} ${r.god}/${r.star}/${r.door} 天${r.heavenStem ?? '○'}地${r.earthStem ?? '○'}`,
   )
   for (const h of r.harms) {
+    const tip = h.remedyAnimal
+      ? formatRemedyAnimal(h.remedyAnimal)
+      : '—'
     console.log(
-      `  ${h.type} ${h.targetValue} → ${h.remedyAnimal ?? '—'} | ${h.reason}`,
+      `  ${h.type} ${h.targetValue} → 存=${h.remedyAnimal ?? '—'} 顯=${tip} | ${h.reason}`,
     )
   }
+}
+
+function assertRemedyDisplay(
+  label: string,
+  harms: DetectedHarm[],
+  type: HarmType,
+  animal: string,
+  expectedLabel: string,
+) {
+  const hit = harms.find(
+    (h) => h.type === type && h.remedyAnimal === animal,
+  )
+  assert(
+    `${label} 顯示${expectedLabel}`,
+    Boolean(hit) && formatRemedyAnimal(hit!.remedyAnimal!) === expectedLabel,
+  )
 }
 
 function doorCase(code: string, door: string, animal: string, label: string) {
@@ -268,6 +288,55 @@ try {
     else localStorage.setItem(HISTORY_STORAGE_KEY, backup)
   }
 }
+
+// ── 化解提示顯示：地支（動物）──
+assert('format 龍', formatRemedyAnimal('龍') === '辰（龍）')
+assert('format 虎', formatRemedyAnimal('虎') === '寅（虎）')
+assert('format 牛', formatRemedyAnimal('牛') === '丑（牛）')
+assert('format 未知不崩', formatRemedyAnimal('未知') === '未知')
+
+assertRemedyDisplay(
+  '震驚門',
+  calculatePalace('371755', '371755').harms,
+  '門迫',
+  '龍',
+  '辰（龍）',
+)
+assertRemedyDisplay(
+  '震開門',
+  calculatePalace('371655', '371655').harms,
+  '門迫',
+  '虎',
+  '寅（虎）',
+)
+assertRemedyDisplay('坎生門', t1.harms, '門迫', '豬', '亥（豬）')
+assertRemedyDisplay(
+  '坎死門',
+  calculatePalace('182239', '182239').harms,
+  '門迫',
+  '蛇',
+  '巳（蛇）',
+)
+assertRemedyDisplay(
+  '坤己擊刑',
+  calculatePalace('211165', '211165').harms,
+  '擊刑',
+  '兔',
+  '卯（兔）',
+)
+assertRemedyDisplay('艮庚擊刑', t11.harms, '擊刑', '蛇', '巳（蛇）')
+assertRemedyDisplay('艮庚入墓', t11.harms, '入墓', '羊', '未（羊）')
+assertRemedyDisplay('巽壬擊刑', t13.harms, '擊刑', '雞', '酉（雞）')
+assertRemedyDisplay('巽壬入墓', t13.harms, '入墓', '狗', '戌（狗）')
+assertRemedyDisplay(
+  '乾乙入墓',
+  calculatePalace('611122', '611122').harms,
+  '入墓',
+  '龍',
+  '辰（龍）',
+)
+// 舊資料只存動物名
+assert('舊存龍→顯示辰（龍）', formatRemedyAnimal('龍') === '辰（龍）')
 
 console.log(`\n結果：${passed} 通過，${failed} 失敗`)
 if (failed > 0) throw new Error(`self-check failed: ${failed}`)

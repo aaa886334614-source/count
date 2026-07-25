@@ -1,4 +1,5 @@
 import type { DetectedHarm } from '../types/qimen'
+import { formatRemedyAnimal } from '../utils/formatRemedyAnimal'
 import { Card } from './Card'
 
 interface HarmResultProps {
@@ -54,7 +55,7 @@ export function HarmResult({ harms }: HarmResultProps) {
             <p className="mt-1 text-[18px]">原因：{harm.reason}</p>
             {harm.remedyAnimal && (
               <p className="mt-2 text-[20px] font-semibold">
-                化解提示：{harm.remedyAnimal}
+                化解提示：{formatRemedyAnimal(harm.remedyAnimal)}
               </p>
             )}
           </li>
