@@ -25,7 +25,11 @@ export function useHistory() {
   const updateRecord = useCallback(
     (id: string, patch: Partial<HistoryRecord>) => {
       setRecords((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+        prev.map((r) =>
+          r.id === id
+            ? { ...r, ...patch, updatedAt: new Date().toISOString() }
+            : r,
+        ),
       )
     },
     [],
@@ -39,6 +43,20 @@ export function useHistory() {
     setRecords([])
   }, [])
 
+  const toggleFavorite = useCallback((id: string) => {
+    setRecords((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              favorite: !r.favorite,
+              updatedAt: new Date().toISOString(),
+            }
+          : r,
+      ),
+    )
+  }, [])
+
   return {
     records,
     storageOk,
@@ -46,5 +64,6 @@ export function useHistory() {
     updateRecord,
     removeRecord,
     clearAll,
+    toggleFavorite,
   }
 }

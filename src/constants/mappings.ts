@@ -1,20 +1,29 @@
-/** 宮位對照：數字 → 名稱 */
-export const PALACE_MAP: Record<string, string> = {
-  '1': '坎',
-  '2': '坤',
-  '3': '震',
-  '4': '巽',
-  '5': '中',
-  '6': '乾',
-  '7': '兌',
-  '8': '艮',
-  '9': '離',
+/**
+ * 六位數教材對照表
+ * 注意：0 依「所在位置」解讀，不可全域當成空無。
+ */
+
+/**
+ * 六位碼第1位宮位數字 → 顯示名與標準宮號（供四害／補空）
+ * 5、0 皆為坤宮（標準宮號 2）。六位碼單宮法不使用「中宮」。
+ */
+export const PALACE_DIGIT_MAP: Record<
+  string,
+  { name: string; number: number }
+> = {
+  '0': { name: '坤', number: 2 },
+  '1': { name: '坎', number: 1 },
+  '2': { name: '坤', number: 2 },
+  '3': { name: '震', number: 3 },
+  '4': { name: '巽', number: 4 },
+  '5': { name: '坤', number: 2 },
+  '6': { name: '乾', number: 6 },
+  '7': { name: '兌', number: 7 },
+  '8': { name: '艮', number: 8 },
+  '9': { name: '離', number: 9 },
 }
 
-/** 九宮格顯示順序（左上→右下） */
-export const NINE_PALACE_ORDER: number[] = [4, 9, 2, 3, 5, 7, 8, 1, 6]
-
-/** 八神對照（可獨立修改） */
+/** 八神：1–9；數字 0 須沿用第1位（見 calculatePalace） */
 export const GOD_MAP: Record<string, string> = {
   '1': '值符',
   '2': '螣蛇',
@@ -28,10 +37,10 @@ export const GOD_MAP: Record<string, string> = {
 }
 
 /**
- * 九星對照（可獨立修改）
- * 注意：此版本不顯示天禽；數字 5 顯示為天芮。
+ * 九星：不可顯示天禽；5 與 0 皆為天芮。
  */
 export const STAR_MAP: Record<string, string> = {
+  '0': '天芮',
   '1': '天蓬',
   '2': '天芮',
   '3': '天沖',
@@ -43,13 +52,16 @@ export const STAR_MAP: Record<string, string> = {
   '9': '天英',
 }
 
-/** 八門對照（可獨立修改） */
+/**
+ * 八門：5 與 0 皆為死門（第4位 0 不是空無）
+ */
 export const DOOR_MAP: Record<string, string> = {
+  '0': '死門',
   '1': '休門',
   '2': '死門',
   '3': '傷門',
   '4': '杜門',
-  '5': '中',
+  '5': '死門',
   '6': '開門',
   '7': '驚門',
   '8': '生門',
@@ -57,10 +69,7 @@ export const DOOR_MAP: Record<string, string> = {
 }
 
 /**
- * 天干對照（天盤／地盤共用）
- * 0：空亡（位置留白，右上角顯示 ○）
- * 1：特殊選擇（甲／戊／癸）
- * 2–9：乙…壬
+ * 天干（僅第5／6位）：0＝空無，1＝甲戊癸選擇，2–9＝乙…壬
  */
 export const STEM_DIGIT_MAP: Record<string, string | null | 'CHOICE'> = {
   '0': null,
@@ -77,7 +86,7 @@ export const STEM_DIGIT_MAP: Record<string, string | null | 'CHOICE'> = {
 
 export const STEM_CHOICES = ['甲', '戊', '癸'] as const
 
-/** 空亡補法：依宮位 */
+/** 補空資料：依標準宮號（坤＝2）；空無時顯示 */
 export const EMPTY_VOID_REMEDY: Record<
   number,
   { branches: string[]; animals: string[]; note?: string }
@@ -86,11 +95,6 @@ export const EMPTY_VOID_REMEDY: Record<
   2: { branches: ['未', '申'], animals: ['羊', '猴'] },
   3: { branches: ['卯'], animals: ['兔'] },
   4: { branches: ['辰', '巳'], animals: ['龍', '蛇'] },
-  5: {
-    branches: [],
-    animals: [],
-    note: '中宮無固定地支補法',
-  },
   6: { branches: ['戌', '亥'], animals: ['狗', '豬'] },
   7: { branches: ['酉'], animals: ['雞'] },
   8: { branches: ['丑', '寅'], animals: ['牛', '虎'] },
@@ -143,11 +147,3 @@ export const FULLWIDTH_DIGIT_MAP: Record<string, string> = {
 
 export const HISTORY_STORAGE_KEY = 'consciousness-qimen-history-v1'
 export const MAX_HISTORY = 100
-
-/** 四害嚴重程度：門迫 > 擊刑 > 入墓 = 空亡 */
-export const HARM_SEVERITY: Record<string, number> = {
-  門迫: 4,
-  擊刑: 3,
-  入墓: 2,
-  空亡: 2,
-}

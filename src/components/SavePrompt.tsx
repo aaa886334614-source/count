@@ -19,13 +19,13 @@ export function SavePrompt({
 }: SavePromptProps) {
   return (
     <section className="card-fade rounded-[20px] bg-white p-6 shadow-[var(--shadow-card)]">
-      <h2 className="text-[28px] font-bold text-[var(--color-ink)]">
+      <h2 className="text-[26px] font-bold text-[var(--color-ink)]">
         是否儲存此排盤？
       </h2>
 
       {saved ? (
         <p className="mt-4 text-[18px] text-[var(--color-muted)]">
-          已儲存至歷史紀錄。
+          已儲存至歷史紀錄
         </p>
       ) : (
         <div className="mt-5 space-y-5">
@@ -53,7 +53,7 @@ export function SavePrompt({
               value={note}
               maxLength={MAX_NOTE}
               rows={3}
-              placeholder={'例如：\n老師上課案例\n測試用\n第3次驗證'}
+              placeholder="例如：老師上課案例、測試用、需要之後再次確認"
               onChange={(e) => onNoteChange(e.target.value.slice(0, MAX_NOTE))}
               className="w-full resize-none rounded-[16px] border-0 bg-[var(--color-surface)] px-4 py-3 text-[18px] text-[var(--color-ink)] outline-none ring-1 ring-[var(--color-line)] focus:ring-2 focus:ring-[var(--color-wine)]"
             />
@@ -66,7 +66,7 @@ export function SavePrompt({
             type="button"
             disabled={!checked}
             onClick={onSave}
-            className="btn-press h-[60px] w-full rounded-[16px] bg-[var(--color-wine)] text-[22px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="btn-press h-[56px] w-full rounded-[16px] bg-[var(--color-wine)] text-[20px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             儲存
           </button>

@@ -15,7 +15,7 @@ export function Card({ children, className = '', title, action }: CardProps) {
       {(title || action) && (
         <div className="mb-5 flex items-start justify-between gap-3">
           {title ? (
-            <h2 className="text-[28px] font-bold leading-tight text-[var(--color-ink)]">
+            <h2 className="text-[24px] font-bold leading-tight text-[var(--color-ink)] sm:text-[28px]">
               {title}
             </h2>
           ) : (

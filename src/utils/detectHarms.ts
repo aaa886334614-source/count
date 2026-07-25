@@ -1,64 +1,91 @@
-import { HARM_RULES } from '../constants/harmRules'
-import { HARM_SEVERITY } from '../constants/mappings'
+import {
+  DOOR_ELEMENT,
+  DOOR_REMEDY_ANIMALS,
+  HARM_SEVERITY,
+  MEN_PO_BY_PALACE,
+  PALACE_ELEMENT,
+  PALACE_NAME,
+  STEM_HARM_RULES,
+} from '../constants/harmRules'
 import type { DetectedHarm, PalaceResult } from '../types/qimen'
 
-function matchTarget(
+function pushMenPo(harms: DetectedHarm[], result: PalaceResult): void {
+  const palace = result.palaceNumber
+  const doors = MEN_PO_BY_PALACE[palace]
+  if (!doors?.includes(result.door)) return
+
+  const doorEl = DOOR_ELEMENT[result.door]
+  const palaceEl = PALACE_ELEMENT[palace]
+  const palaceName = result.palaceName || PALACE_NAME[palace] || ''
+  const reason =
+    doorEl && palaceEl
+      ? `${result.door}屬${doorEl}，${palaceName}宮屬${palaceEl}，${doorEl}剋${palaceEl}`
+      : `${result.door}落${palaceName}宮構成門迫`
+
+  harms.push({
+    id: `menpo-${palace}-${result.door}`,
+    type: '門迫',
+    severity: HARM_SEVERITY.門迫,
+    palace,
+    palaceName,
+    targetType: 'door',
+    targetValue: result.door,
+    reason,
+    remedyAnimal: DOOR_REMEDY_ANIMALS[result.door],
+  })
+}
+
+function pushStemHarms(
+  harms: DetectedHarm[],
   result: PalaceResult,
-  targetType: string,
-  targetValue: string,
-): boolean {
-  switch (targetType) {
-    case 'door':
-      return result.door === targetValue
-    case 'star':
-      return result.star === targetValue
-    case 'god':
-      return result.god === targetValue
-    case 'heavenStem':
-      return result.heavenStem === targetValue
-    case 'earthStem':
-      return result.earthStem === targetValue
-    default:
-      return false
+  stem: string | null,
+  targetType: 'heavenStem' | 'earthStem',
+  label: string,
+): void {
+  if (!stem) return
+  const palace = result.palaceNumber
+  const palaceName = result.palaceName || PALACE_NAME[palace] || ''
+
+  for (const rule of STEM_HARM_RULES) {
+    if (rule.palace !== palace || rule.stem !== stem) continue
+    harms.push({
+      id: `${rule.type}-${targetType}-${palace}-${stem}`,
+      type: rule.type,
+      severity: HARM_SEVERITY[rule.type],
+      palace,
+      palaceName,
+      targetType,
+      targetValue: stem,
+      reason: `${label}「${stem}」：${rule.description}`,
+      remedyAnimal: rule.remedyAnimal,
+    })
   }
 }
 
-/**
- * 依設定表判定四害。
- * 空亡依數字 0 判定；門迫／擊刑／入墓僅在 HARM_RULES 有明確規則時成立。
- */
+function pushEmptyVoid(harms: DetectedHarm[], result: PalaceResult): void {
+  if (!result.isEmptyVoid) return
+  const parts: string[] = []
+  if (result.heavenStemDigit === '0') parts.push('天盤干')
+  if (result.earthStemDigit === '0') parts.push('地盤干')
+  const palaceName = result.palaceName || PALACE_NAME[result.palaceNumber] || ''
+
+  harms.push({
+    id: `empty-${result.palaceNumber}-${parts.join('-')}`,
+    type: '空無',
+    severity: HARM_SEVERITY.空無,
+    palace: result.palaceNumber,
+    palaceName,
+    targetType: 'emptyVoid',
+    targetValue: parts.join('、') || '空無',
+    reason: `${parts.join('、')}為 0，構成空無`,
+  })
+}
+
 export function detectHarms(result: PalaceResult): DetectedHarm[] {
   const harms: DetectedHarm[] = []
-
-  if (result.isEmptyVoid) {
-    harms.push({
-      type: '空亡',
-      severity: HARM_SEVERITY['空亡'],
-      affectedItem:
-        result.heavenStemDigit === '0' && result.earthStemDigit === '0'
-          ? '天盤干、地盤干'
-          : result.heavenStemDigit === '0'
-            ? '天盤干'
-            : '地盤干',
-      remedyBranches: result.emptyVoidRemedy?.branches ?? [],
-      remedyAnimals: result.emptyVoidRemedy?.animals ?? [],
-      description: '天盤干或地盤干為 0，構成空亡。',
-    })
-  }
-
-  for (const rule of HARM_RULES) {
-    if (rule.palace !== result.palaceNumber) continue
-    if (!matchTarget(result, rule.targetType, rule.targetValue)) continue
-
-    harms.push({
-      type: rule.type,
-      severity: HARM_SEVERITY[rule.type] ?? 1,
-      affectedItem: rule.targetValue,
-      remedyBranches: rule.remedyBranches ?? [],
-      remedyAnimals: rule.remedyAnimals ?? [],
-      description: rule.description ?? `${rule.type}條件成立`,
-    })
-  }
-
+  pushMenPo(harms, result)
+  pushStemHarms(harms, result, result.heavenStem, 'heavenStem', '天盤干')
+  pushStemHarms(harms, result, result.earthStem, 'earthStem', '地盤干')
+  pushEmptyVoid(harms, result)
   return harms.sort((a, b) => b.severity - a.severity)
 }

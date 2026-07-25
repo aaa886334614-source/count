@@ -15,6 +15,21 @@ function isHistoryRecord(value: unknown): value is HistoryRecord {
   )
 }
 
+function normalizeRecord(r: HistoryRecord): HistoryRecord {
+  const digit =
+    r.palaceInputDigit ||
+    (typeof r.normalizedCode === 'string' && r.normalizedCode.length > 0
+      ? r.normalizedCode[0]
+      : String(r.palaceNumber))
+  return {
+    ...r,
+    palaceInputDigit: digit,
+    updatedAt: r.updatedAt ?? r.createdAt,
+    favorite: Boolean(r.favorite),
+    harms: Array.isArray(r.harms) ? r.harms : [],
+  }
+}
+
 export function loadHistory(): HistoryRecord[] {
   try {
     if (typeof localStorage === 'undefined') return []
@@ -22,7 +37,10 @@ export function loadHistory(): HistoryRecord[] {
     if (!raw) return []
     const parsed: unknown = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
-    return parsed.filter(isHistoryRecord).slice(0, MAX_HISTORY)
+    return parsed
+      .filter(isHistoryRecord)
+      .map(normalizeRecord)
+      .slice(0, MAX_HISTORY)
   } catch {
     return []
   }
@@ -46,11 +64,14 @@ export function createHistoryRecord(
   note?: string,
 ): HistoryRecord {
   const trimmed = note?.trim()
+  const now = new Date().toISOString()
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
     rawInput: result.rawInput,
     normalizedCode: result.normalizedCode,
+    palaceInputDigit: result.palaceInputDigit,
     palaceNumber: result.palaceNumber,
     palaceName: result.palaceName,
     god: result.god,
@@ -64,6 +85,7 @@ export function createHistoryRecord(
     emptyVoidRemedy: result.emptyVoidRemedy,
     harms: result.harms,
     note: trimmed ? trimmed.slice(0, 100) : undefined,
+    favorite: false,
   }
 }
 

@@ -1,26 +1,23 @@
 export type StemChoice = '甲' | '戊' | '癸'
 
-export type HarmType = '門迫' | '擊刑' | '入墓' | '空亡'
+export type HarmType = '門迫' | '擊刑' | '入墓' | '空無'
 
-export type HarmTargetType = 'door' | 'heavenStem' | 'earthStem' | 'star' | 'god'
-
-export interface HarmRule {
-  type: '門迫' | '擊刑' | '入墓'
-  palace: number
-  targetType: HarmTargetType
-  targetValue: string
-  remedyBranches?: string[]
-  remedyAnimals?: string[]
-  description?: string
-}
+export type HarmTargetType =
+  | 'door'
+  | 'heavenStem'
+  | 'earthStem'
+  | 'emptyVoid'
 
 export interface DetectedHarm {
+  id: string
   type: HarmType
   severity: number
-  affectedItem: string
-  remedyBranches: string[]
-  remedyAnimals: string[]
-  description: string
+  palace: number
+  palaceName: string
+  targetType: HarmTargetType
+  targetValue: string
+  reason: string
+  remedyAnimal?: string
 }
 
 export interface EmptyVoidRemedy {
@@ -32,6 +29,9 @@ export interface EmptyVoidRemedy {
 export interface PalaceResult {
   rawInput: string
   normalizedCode: string
+  /** 使用者輸入的第1位原始數字（0–9） */
+  palaceInputDigit: string
+  /** 標準宮號（0／5 → 2），用於四害、補空、九宮定位 */
   palaceNumber: number
   palaceName: string
   god: string
@@ -53,8 +53,10 @@ export interface PalaceResult {
 export interface HistoryRecord {
   id: string
   createdAt: string
+  updatedAt: string
   rawInput: string
   normalizedCode: string
+  palaceInputDigit: string
   palaceNumber: number
   palaceName: string
   god: string
@@ -68,6 +70,7 @@ export interface HistoryRecord {
   emptyVoidRemedy: EmptyVoidRemedy | null
   harms: DetectedHarm[]
   note?: string
+  favorite?: boolean
 }
 
 export interface ParseSuccess {

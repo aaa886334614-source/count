@@ -33,10 +33,10 @@ export function RuleGuide() {
             </div>
             <div>
               <p className="mb-1 font-semibold text-[var(--color-ink)]">
-                字母轉數字
+                0 的位置意義
               </p>
               <p>
-                AJS=1、BKT=2、CLU=3、DMV=4、ENW=5、FOX=6、GPY=7、HQZ=8、IR=9
+                宮位0／5→坤；八神0→沿用宮位數字；九星0→天芮；八門0→死門；僅天／地盤干0→空無。
               </p>
             </div>
             <div>
@@ -44,7 +44,8 @@ export function RuleGuide() {
                 天干數字
               </p>
               <p>
-                0 為空亡（位置留白並顯示 ○）；1 需選甲／戊／癸；2–9 為乙至壬。
+                第5／6位為0時空無（干位留白並顯示 ○）；為1時需選甲／戊／癸後才排盤；2–9
+                為乙至壬。
               </p>
             </div>
             <div>
@@ -52,7 +53,7 @@ export function RuleGuide() {
                 對照與四害
               </p>
               <p className="break-all">
-                mappings.ts / harmRules.ts — 僅在設定表有明確規則時判定門迫、擊刑、入墓。
+                mappings.ts／harmRules.ts — 門迫、擊刑、入墓、空無依教材表判定。
               </p>
             </div>
           </div>

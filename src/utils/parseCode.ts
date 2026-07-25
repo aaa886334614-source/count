@@ -3,6 +3,7 @@ import { normalizeInput } from './normalizeInput'
 
 /**
  * 解析六位碼。必須逐位處理，不可當成整數。
+ * 第1位可為 0（坤宮）；第2位為 0 時沿用第1位轉換八神。
  */
 export function parseSixCode(raw: string): ParseResult {
   const normalized = normalizeInput(raw)
@@ -26,10 +27,12 @@ export function parseSixCode(raw: string): ParseResult {
     }
   }
 
-  if (code[0] === '0') {
+  // 八神為 0 時沿用宮位數字；若宮位亦為 0，不可遞迴
+  if (code[1] === '0' && code[0] === '0') {
     return {
       ok: false,
-      error: '第 1 位宮位不可為 0。請輸入 1–9 的宮位數字。',
+      error:
+        '八神為0時需沿用宮位數字，但宮位原始數字同樣為0，無法取得八神。',
     }
   }
 

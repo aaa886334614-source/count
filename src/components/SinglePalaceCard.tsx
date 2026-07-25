@@ -5,84 +5,86 @@ interface SinglePalaceCardProps {
   result: PalaceResult
 }
 
-/**
- * 教材式單宮：CSS Grid 排版
- * 左上八神｜右上空亡○
- * 左中天盤｜右中九星
- * 左下地盤｜右下八門
- * 底部中央宮位
- */
 export function SinglePalaceCard({ result }: SinglePalaceCardProps) {
   const stemText = (v: string | null, needs: boolean) => {
     if (needs) return '待選'
     return v ?? '\u00A0'
   }
 
+  const highlightDoor = result.harms.some((h) => h.type === '門迫')
+  const highlightHeaven = result.harms.some(
+    (h) =>
+      h.targetType === 'heavenStem' &&
+      (h.type === '擊刑' || h.type === '入墓'),
+  )
+  const highlightEarth = result.harms.some(
+    (h) =>
+      h.targetType === 'earthStem' &&
+      (h.type === '擊刑' || h.type === '入墓'),
+  )
+  const mark = (on: boolean) =>
+    on ? 'text-[var(--color-wine)]' : 'text-[var(--color-ink)]'
+
   return (
     <Card title="單宮結果">
-      <div className="mx-auto w-[90%] max-w-[420px]">
+      <div className="mx-auto w-full max-w-[400px]">
         <div
-          className="grid aspect-square w-full grid-cols-2 grid-rows-[1.1fr_1fr_1fr_1.2fr] gap-3 rounded-[20px] bg-[var(--color-surface)] p-6 ring-1 ring-[var(--color-line)]"
+          className="grid aspect-[5/6] w-full grid-cols-2 grid-rows-[auto_1fr_1fr_auto] gap-x-4 gap-y-6 rounded-[16px] border border-[var(--color-line)] bg-white p-5 sm:p-7"
           aria-label="單宮盤"
         >
-          {/* 左上：八神 */}
-          <div className="flex items-start justify-start self-start">
-            <span className="break-words text-[32px] font-semibold leading-tight text-[var(--color-ink)]">
+          <div className="flex items-start justify-start">
+            <span className="text-[28px] font-semibold leading-none text-[var(--color-ink)] sm:text-[32px]">
               {result.god}
             </span>
           </div>
-
-          {/* 右上：空亡 ○ */}
-          <div className="flex items-start justify-end self-start">
+          <div className="flex items-start justify-end">
             {result.isEmptyVoid ? (
               <span
-                className="text-[32px] leading-none text-[var(--color-ink)]"
-                aria-label="空亡"
+                className="text-[28px] leading-none text-[var(--color-ink)] sm:text-[32px]"
+                aria-label="空無"
               >
                 ○
               </span>
             ) : (
-              <span className="invisible text-[32px]">○</span>
+              <span className="invisible text-[28px]">○</span>
             )}
           </div>
 
-          {/* 左中：天盤干 */}
           <div className="flex items-center justify-start">
-            <span className="break-words text-[32px] font-semibold leading-tight text-[var(--color-ink)]">
+            <span
+              className={`text-[30px] font-semibold leading-none sm:text-[36px] ${mark(highlightHeaven)}`}
+            >
               {stemText(result.heavenStem, result.needsHeavenChoice)}
             </span>
           </div>
-
-          {/* 右中：九星 */}
           <div className="flex items-center justify-end text-right">
-            <span className="break-words text-[28px] font-medium leading-tight text-[var(--color-ink)]">
+            <span className="text-[28px] font-medium leading-none text-[var(--color-ink)] sm:text-[32px]">
               {result.star}
             </span>
           </div>
 
-          {/* 左下：地盤干 */}
           <div className="flex items-center justify-start">
-            <span className="break-words text-[32px] font-semibold leading-tight text-[var(--color-ink)]">
+            <span
+              className={`text-[30px] font-semibold leading-none sm:text-[36px] ${mark(highlightEarth)}`}
+            >
               {stemText(result.earthStem, result.needsEarthChoice)}
             </span>
           </div>
-
-          {/* 右下：八門 */}
           <div className="flex items-center justify-end text-right">
-            <span className="break-words text-[28px] font-medium leading-tight text-[var(--color-ink)]">
+            <span
+              className={`text-[28px] font-medium leading-none sm:text-[32px] ${mark(highlightDoor)}`}
+            >
               {result.door}
             </span>
           </div>
 
-          {/* 底部中央：宮位 */}
-          <div className="col-span-2 flex items-end justify-center pb-1">
-            <span className="text-[40px] font-bold leading-none tracking-wide text-[var(--color-ink)]">
-              {result.palaceNumber} {result.palaceName}
+          <div className="col-span-2 flex items-end justify-center pt-2">
+            <span className="text-[36px] font-bold leading-none tracking-wide text-[var(--color-ink)] sm:text-[42px]">
+              {result.palaceInputDigit} {result.palaceName}
             </span>
           </div>
         </div>
-
-        <p className="mt-4 text-center font-mono text-[18px] tracking-[0.28em] text-[var(--color-muted)]">
+        <p className="mt-4 text-center font-mono text-[16px] tracking-[0.28em] text-[var(--color-muted)]">
           {result.normalizedCode}
         </p>
       </div>
