@@ -17,6 +17,7 @@ export function useHistory() {
   }, [records])
 
   const addFromResult = useCallback((result: PalaceResult, note?: string) => {
+    // createHistoryRecord 內會再跑一次最新 calculatePalace + detectHarms
     const record = createHistoryRecord(result, note)
     setRecords((prev) => prependHistory(prev, record))
     return record

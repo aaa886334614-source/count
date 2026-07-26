@@ -18,6 +18,7 @@ import { HistoryList } from './components/HistoryList'
 import { RuleGuide } from './components/RuleGuide'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { SavePrompt } from './components/SavePrompt'
+import { recalculateHistoryRecord } from './utils/recalculateHistory'
 
 export default function App() {
   const [input, setInput] = useState('')
@@ -150,21 +151,27 @@ export default function App() {
   }
 
   const handleLoad = (record: HistoryRecord) => {
-    setInput(record.rawInput)
-    setHeavenChoice(record.heavenStemChoice)
-    setEarthChoice(record.earthStemChoice)
+    // 還原時以最新規則重算，不信任舊 harms
+    const fresh = recalculateHistoryRecord(record)
+    setInput(fresh.rawInput)
+    setHeavenChoice(fresh.heavenStemChoice)
+    setEarthChoice(fresh.earthStemChoice)
     setPendingCode(null)
     setPendingRaw('')
-    setActiveId(record.id)
+    setActiveId(fresh.id)
     setJustSaved(true)
     setSaveChecked(true)
-    setSaveNote(record.note ?? '')
-    setError(null)
+    setSaveNote(fresh.note ?? '')
+    setError(
+      fresh.dataIncomplete
+        ? '此筆歷史缺甲／戊／癸選擇，無法完整重算。'
+        : null,
+    )
     const next = runCalculate(
-      record.rawInput,
-      record.normalizedCode,
-      record.heavenStemChoice,
-      record.earthStemChoice,
+      fresh.rawInput,
+      fresh.normalizedCode,
+      fresh.heavenStemChoice,
+      fresh.earthStemChoice,
     )
     if (next) setResult(next)
   }
@@ -176,13 +183,13 @@ export default function App() {
     !showFullResult
 
   return (
-    <div className="min-h-screen bg-white text-[var(--color-ink)]">
-      <main className="mx-auto flex w-full max-w-[720px] flex-col gap-6 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(1.5rem+env(safe-area-inset-top))] sm:gap-7 sm:px-6 sm:pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:pt-[calc(2.5rem+env(safe-area-inset-top))]">
-        <header className="card-fade space-y-3 px-1">
-          <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[var(--color-ink)] sm:text-[36px]">
+    <div className="min-h-screen bg-[#fafafa] text-[var(--color-ink)]">
+      <main className="mx-auto flex w-full max-w-[720px] flex-col gap-5 px-[18px] pb-[calc(1.75rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:gap-6 sm:px-6 sm:pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:pt-[calc(2rem+env(safe-area-inset-top))]">
+        <header className="card-fade space-y-2 px-0.5">
+          <h1 className="text-[30px] font-extrabold leading-tight tracking-tight text-[var(--color-ink)] sm:text-[36px]">
             奇門遁甲六位數字單宮排盤
           </h1>
-          <p className="text-[16px] leading-relaxed text-[var(--color-muted)] sm:text-[18px]">
+          <p className="text-[15px] leading-relaxed text-[var(--color-muted)] sm:text-[16px]">
             輸入六位碼，解析單宮神、星、門、干與四害。資料僅存於本機。
           </p>
           {!storageOk && (
@@ -220,11 +227,11 @@ export default function App() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           <button
             type="button"
             onClick={handleSubmit}
-            className="btn-press h-[56px] w-full rounded-[16px] bg-[var(--color-wine)] text-[20px] font-semibold text-white sm:h-[60px] sm:text-[22px]"
+            className="btn-press h-[52px] w-full rounded-[16px] bg-[var(--color-wine)] text-[18px] font-semibold text-white sm:h-[56px] sm:text-[20px]"
           >
             開始排盤
           </button>
@@ -232,7 +239,7 @@ export default function App() {
             <button
               type="button"
               onClick={handleReset}
-              className="btn-press h-[56px] w-full rounded-[16px] bg-[var(--color-surface)] text-[18px] font-medium text-[var(--color-ink)] ring-1 ring-[var(--color-line)]"
+              className="btn-press h-[48px] w-full rounded-[16px] bg-white text-[16px] font-medium text-[var(--color-ink)] ring-1 ring-[var(--color-line)]"
             >
               重新排盤
             </button>
@@ -240,7 +247,7 @@ export default function App() {
         </div>
 
         {error && (
-          <p className="card-fade break-words rounded-[20px] bg-[var(--color-wine-soft)] px-6 py-4 text-[16px] text-[var(--color-wine)] sm:text-[18px]">
+          <p className="card-fade break-words rounded-[16px] bg-[var(--color-wine-soft)] px-4 py-3.5 text-[15px] leading-relaxed text-[var(--color-wine)] sm:text-[16px]">
             {error}
           </p>
         )}

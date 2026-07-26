@@ -9,14 +9,14 @@ export function RuleGuide() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full min-h-[60px] items-center justify-between px-6 py-4 text-left"
+        className="flex w-full min-h-[56px] items-center justify-between px-5 py-4 text-left sm:px-6"
         aria-expanded={open}
       >
-        <span className="text-[28px] font-bold text-[var(--color-ink)]">
+        <span className="text-[22px] font-extrabold text-[var(--color-ink)] sm:text-[24px]">
           規則說明
         </span>
         <ChevronDown
-          className={`h-6 w-6 text-[var(--color-muted)] transition-transform duration-300 ${
+          className={`h-5 w-5 text-[var(--color-muted)] transition-transform duration-300 ${
             open ? 'rotate-180' : ''
           }`}
         />
@@ -24,7 +24,7 @@ export function RuleGuide() {
 
       <div className="accordion-panel" data-open={open ? 'true' : 'false'}>
         <div>
-          <div className="space-y-5 border-t border-[var(--color-line)] px-6 pb-6 pt-5 text-[18px] leading-relaxed text-[var(--color-muted)]">
+          <div className="space-y-4 border-t border-[var(--color-line)] px-5 pb-5 pt-4 text-[15px] leading-relaxed text-[var(--color-muted)] sm:px-6 sm:pb-6">
             <div>
               <p className="mb-1 font-semibold text-[var(--color-ink)]">
                 六位順序

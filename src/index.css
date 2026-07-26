@@ -6,13 +6,11 @@
   --color-wine-soft: #f7eef0;
   --color-ink: #111111;
   --color-muted: #6b6b6b;
-  --color-line: #e8e8e8;
-  --color-surface: #f7f7f8;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04);
+  --color-line: #ececec;
+  --color-surface: #f6f6f7;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
   --radius-card: 20px;
   --radius-btn: 16px;
-  --pad-card: 24px;
-  --gap-section: 24px;
 }
 
 @layer base {
@@ -24,7 +22,7 @@
     margin: 0;
     min-width: 320px;
     overflow-x: hidden;
-    background: #ffffff;
+    background: #fafafa;
     color: var(--color-ink);
     font-family:
       -apple-system,
@@ -34,7 +32,7 @@
       'Noto Sans TC',
       'Helvetica Neue',
       sans-serif;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
@@ -57,7 +55,7 @@
 
 @layer components {
   .card-fade {
-    animation: card-fade-in 0.35s ease-out both;
+    animation: card-fade-in 0.3s ease-out both;
   }
 
   .btn-press {
@@ -68,11 +66,19 @@
   }
 
   .btn-press:hover {
-    filter: brightness(1.05);
+    filter: brightness(1.04);
   }
 
   .btn-press:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
+  }
+
+  .sheet-backdrop {
+    animation: fade-in 0.2s ease-out both;
+  }
+
+  .sheet-panel {
+    animation: sheet-up 0.28s ease-out both;
   }
 
   .accordion-panel {
@@ -93,7 +99,27 @@
 @keyframes card-fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    opacity: 0.6;
+    transform: translateY(24px);
   }
   to {
     opacity: 1;

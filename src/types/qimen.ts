@@ -71,6 +71,8 @@ export interface HistoryRecord {
   harms: DetectedHarm[]
   note?: string
   favorite?: boolean
+  /** 舊資料缺甲／戊／癸選擇，無法依最新規則重算時為 true */
+  dataIncomplete?: boolean
 }
 
 export interface ParseSuccess {

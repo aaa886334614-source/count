@@ -9,8 +9,36 @@ import {
 } from './calculatePalace'
 import { createHistoryRecord, loadHistory, saveHistory } from './storage'
 import { formatRemedyAnimal } from './formatRemedyAnimal'
+import {
+  formatHistoryHarmSummary,
+  formatHistoryRemedySummary,
+  recalculateHistoryRecord,
+} from './recalculateHistory'
 import { HISTORY_STORAGE_KEY } from '../constants/mappings'
-import type { DetectedHarm, HarmType, PalaceResult } from '../types/qimen'
+import type {
+  DetectedHarm,
+  HarmType,
+  HistoryRecord,
+  PalaceResult,
+} from '../types/qimen'
+
+/** Node 環境補 localStorage，供遷移測試 */
+function ensureLocalStorage() {
+  if (typeof globalThis.localStorage !== 'undefined') return
+  const store = new Map<string, string>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(globalThis as any).localStorage = {
+    getItem: (k: string) => (store.has(k) ? store.get(k)! : null),
+    setItem: (k: string, v: string) => {
+      store.set(k, String(v))
+    },
+    removeItem: (k: string) => {
+      store.delete(k)
+    },
+    clear: () => store.clear(),
+  }
+}
+ensureLocalStorage()
 
 let passed = 0
 let failed = 0
@@ -337,6 +365,130 @@ assertRemedyDisplay(
 )
 // 舊資料只存動物名
 assert('舊存龍→顯示辰（龍）', formatRemedyAnimal('龍') === '辰（龍）')
+
+// ── 歷史紀錄重新計算／遷移 ──
+function makeStaleRecord(
+  code: string,
+  patch: Partial<HistoryRecord> = {},
+): HistoryRecord {
+  const now = '2020-01-01T00:00:00.000Z'
+  return {
+    id: `stale-${code}`,
+    createdAt: now,
+    updatedAt: now,
+    rawInput: code,
+    normalizedCode: code,
+    palaceInputDigit: code[0],
+    palaceNumber: Number(code[0]) === 0 || Number(code[0]) === 5 ? 2 : Number(code[0]),
+    palaceName: '舊',
+    god: '舊',
+    star: '舊',
+    door: '舊',
+    heavenStem: null,
+    earthStem: null,
+    isEmptyVoid: false,
+    emptyVoidRemedy: null,
+    harms: [],
+    note: '保留備註',
+    favorite: true,
+    ...patch,
+  }
+}
+
+const stale358796 = makeStaleRecord('358796')
+const fixed358796 = recalculateHistoryRecord(stale358796)
+dump('遷移後 358796', calculatePalace('358796', '358796'))
+assert(
+  '358796 舊 harms[] → 門迫驚門龍',
+  hasHarm(fixed358796.harms, '門迫', { target: '驚門', animal: '龍' }),
+)
+assert(
+  '358796 摘要 門迫：驚門',
+  formatHistoryHarmSummary(fixed358796.harms) === '門迫：驚門',
+)
+assert(
+  '358796 化解 辰（龍）',
+  formatHistoryRemedySummary(fixed358796.harms) === '辰（龍）',
+)
+assert('358796 保留 id', fixed358796.id === stale358796.id)
+assert('358796 保留 createdAt', fixed358796.createdAt === stale358796.createdAt)
+assert('358796 保留 note', fixed358796.note === '保留備註')
+assert('358796 保留 favorite', fixed358796.favorite === true)
+assert(
+  '358796 實際變動才更新 updatedAt',
+  fixed358796.updatedAt !== stale358796.updatedAt,
+)
+
+const stale182839 = makeStaleRecord('182839')
+const fixed182839 = recalculateHistoryRecord(stale182839)
+assert(
+  '182839 舊 harms[] → 門迫生門豬',
+  hasHarm(fixed182839.harms, '門迫', { target: '生門', animal: '豬' }),
+)
+assert(
+  '182839 摘要',
+  formatHistoryHarmSummary(fixed182839.harms) === '門迫：生門' &&
+    formatHistoryRemedySummary(fixed182839.harms) === '亥（豬）',
+)
+
+const staleGenGeng = makeStaleRecord('811172', {
+  palaceNumber: 8,
+  palaceName: '艮',
+})
+const fixedGenGeng = recalculateHistoryRecord(staleGenGeng)
+assert(
+  '艮庚 舊 harms[] → 擊刑蛇',
+  hasHarm(fixedGenGeng.harms, '擊刑', { target: '庚', animal: '蛇' }),
+)
+assert(
+  '艮庚 舊 harms[] → 入墓羊',
+  hasHarm(fixedGenGeng.harms, '入墓', { target: '庚', animal: '羊' }),
+)
+assert(
+  '艮庚 摘要含雙害',
+  formatHistoryHarmSummary(fixedGenGeng.harms).includes('擊刑：庚') &&
+    formatHistoryHarmSummary(fixedGenGeng.harms).includes('入墓：庚'),
+)
+assert(
+  '艮庚 化解雙動物',
+  formatHistoryRemedySummary(fixedGenGeng.harms) === '巳（蛇）、未（羊）',
+)
+
+// localStorage 遷移：不建立重複筆
+const migBackup = localStorage.getItem(HISTORY_STORAGE_KEY)
+try {
+  localStorage.removeItem(HISTORY_STORAGE_KEY)
+  saveHistory([stale358796])
+  const loaded = loadHistory()
+  assert('遷移後仍一筆', loaded.length === 1)
+  assert('遷移後同 id', loaded[0]?.id === stale358796.id)
+  assert(
+    'loadHistory 自動修正 358796',
+    hasHarm(loaded[0]?.harms ?? [], '門迫', {
+      target: '驚門',
+      animal: '龍',
+    }),
+  )
+  assert('遷移後保留 note', loaded[0]?.note === '保留備註')
+  assert('遷移後保留 favorite', loaded[0]?.favorite === true)
+  // 再讀一次不應複製
+  const loaded2 = loadHistory()
+  assert('二次讀取不重複', loaded2.length === 1 && loaded2[0]?.id === stale358796.id)
+
+  // createHistoryRecord 必須寫入最新 harms
+  const freshSave = createHistoryRecord(
+    calculatePalace('358796', '358796'),
+    '新存',
+  )
+  assert(
+    '新建 358796 含門迫龍',
+    hasHarm(freshSave.harms, '門迫', { target: '驚門', animal: '龍' }) &&
+      freshSave.palaceName === '震',
+  )
+} finally {
+  if (migBackup == null) localStorage.removeItem(HISTORY_STORAGE_KEY)
+  else localStorage.setItem(HISTORY_STORAGE_KEY, migBackup)
+}
 
 console.log(`\n結果：${passed} 通過，${failed} 失敗`)
 if (failed > 0) throw new Error(`self-check failed: ${failed}`)

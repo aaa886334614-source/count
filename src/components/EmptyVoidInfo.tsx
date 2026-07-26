@@ -11,23 +11,21 @@ export function EmptyVoidInfo({ remedy, isEmptyVoid }: EmptyVoidInfoProps) {
 
   return (
     <Card title="補空資訊">
-      <div className="border-t border-[var(--color-line)] pt-5">
-        {remedy.note && remedy.branches.length === 0 ? (
-          <p className="text-[22px] leading-relaxed text-[var(--color-ink)]">
-            {remedy.note}
+      {remedy.note && remedy.branches.length === 0 ? (
+        <p className="text-[17px] leading-relaxed text-[var(--color-ink)]">
+          {remedy.note}
+        </p>
+      ) : (
+        <div>
+          <p className="text-[14px] text-[var(--color-muted)]">補空</p>
+          <p className="mt-1 text-[24px] font-bold leading-snug text-[var(--color-ink)]">
+            {remedy.branches.join('、')}
+            {remedy.animals.length > 0
+              ? `（${remedy.animals.join('、')}）`
+              : ''}
           </p>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-[18px] text-[var(--color-muted)]">補空：</p>
-            <p className="text-[28px] font-semibold leading-snug text-[var(--color-ink)]">
-              {remedy.branches.join('、')}
-              {remedy.animals.length > 0
-                ? `（${remedy.animals.join('、')}）`
-                : ''}
-            </p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </Card>
   )
 }

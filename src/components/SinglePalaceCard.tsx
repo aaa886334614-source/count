@@ -27,64 +27,67 @@ export function SinglePalaceCard({ result }: SinglePalaceCardProps) {
 
   return (
     <Card title="單宮結果">
-      <div className="mx-auto w-full max-w-[400px]">
+      <div className="mx-auto w-full max-w-[360px]">
         <div
-          className="grid aspect-[5/6] w-full grid-cols-2 grid-rows-[auto_1fr_1fr_auto] gap-x-4 gap-y-6 rounded-[16px] border border-[var(--color-line)] bg-white p-5 sm:p-7"
+          className="grid grid-cols-2 gap-x-3 gap-y-5 rounded-[18px] border border-[var(--color-line)] bg-[var(--color-surface)]/40 px-4 py-5 sm:px-5 sm:py-6"
           aria-label="單宮盤"
         >
-          <div className="flex items-start justify-start">
-            <span className="text-[28px] font-semibold leading-none text-[var(--color-ink)] sm:text-[32px]">
+          <div className="min-h-[40px]">
+            <p className="text-[12px] text-[var(--color-muted)]">八神</p>
+            <p className="mt-1 text-[24px] font-bold leading-none text-[var(--color-ink)] sm:text-[26px]">
               {result.god}
-            </span>
+            </p>
           </div>
-          <div className="flex items-start justify-end">
-            {result.isEmptyVoid ? (
-              <span
-                className="text-[28px] leading-none text-[var(--color-ink)] sm:text-[32px]"
-                aria-label="空無"
-              >
-                ○
-              </span>
-            ) : (
-              <span className="invisible text-[28px]">○</span>
-            )}
+          <div className="flex min-h-[40px] flex-col items-end">
+            <p className="text-[12px] text-[var(--color-muted)]">空無</p>
+            <p
+              className="mt-1 text-[22px] leading-none text-[var(--color-ink)]"
+              aria-label={result.isEmptyVoid ? '空無' : undefined}
+            >
+              {result.isEmptyVoid ? '○' : '\u00A0'}
+            </p>
           </div>
 
-          <div className="flex items-center justify-start">
-            <span
-              className={`text-[30px] font-semibold leading-none sm:text-[36px] ${mark(highlightHeaven)}`}
+          <div className="min-h-[44px]">
+            <p className="text-[12px] text-[var(--color-muted)]">天盤干</p>
+            <p
+              className={`mt-1 text-[28px] font-bold leading-none sm:text-[30px] ${mark(highlightHeaven)}`}
             >
               {stemText(result.heavenStem, result.needsHeavenChoice)}
-            </span>
+            </p>
           </div>
-          <div className="flex items-center justify-end text-right">
-            <span className="text-[28px] font-medium leading-none text-[var(--color-ink)] sm:text-[32px]">
+          <div className="min-h-[44px] text-right">
+            <p className="text-[12px] text-[var(--color-muted)]">九星</p>
+            <p className="mt-1 text-[24px] font-semibold leading-none text-[var(--color-ink)] sm:text-[26px]">
               {result.star}
-            </span>
+            </p>
           </div>
 
-          <div className="flex items-center justify-start">
-            <span
-              className={`text-[30px] font-semibold leading-none sm:text-[36px] ${mark(highlightEarth)}`}
+          <div className="min-h-[44px]">
+            <p className="text-[12px] text-[var(--color-muted)]">地盤干</p>
+            <p
+              className={`mt-1 text-[28px] font-bold leading-none sm:text-[30px] ${mark(highlightEarth)}`}
             >
               {stemText(result.earthStem, result.needsEarthChoice)}
-            </span>
+            </p>
           </div>
-          <div className="flex items-center justify-end text-right">
-            <span
-              className={`text-[28px] font-medium leading-none sm:text-[32px] ${mark(highlightDoor)}`}
+          <div className="min-h-[44px] text-right">
+            <p className="text-[12px] text-[var(--color-muted)]">八門</p>
+            <p
+              className={`mt-1 text-[24px] font-semibold leading-none sm:text-[26px] ${mark(highlightDoor)}`}
             >
               {result.door}
-            </span>
+            </p>
           </div>
 
-          <div className="col-span-2 flex items-end justify-center pt-2">
-            <span className="text-[36px] font-bold leading-none tracking-wide text-[var(--color-ink)] sm:text-[42px]">
+          <div className="col-span-2 border-t border-[var(--color-line)] pt-4 text-center">
+            <p className="text-[12px] text-[var(--color-muted)]">宮位</p>
+            <p className="mt-1 text-[40px] font-extrabold leading-none tracking-wide text-[var(--color-ink)]">
               {result.palaceInputDigit} {result.palaceName}
-            </span>
+            </p>
           </div>
         </div>
-        <p className="mt-4 text-center font-mono text-[16px] tracking-[0.28em] text-[var(--color-muted)]">
+        <p className="mt-3 text-center font-mono text-[15px] tracking-[0.22em] text-[var(--color-muted)]">
           {result.normalizedCode}
         </p>
       </div>
