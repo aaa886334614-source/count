@@ -1,8 +1,13 @@
-# 奇門遁甲六位數字單宮排盤
+# 奇門遁甲整合工作台
 
-專案名稱：`qimen-single-palace`
+分支：`integrate-qimen-workspace`（Git  repo：`奇門遁甲算`）
 
-純前端 Vite + React + TypeScript + Tailwind CSS 工具。依教材六位碼解析單宮，四害與化解動物亦依教材表。歷史紀錄存於瀏覽器 `localStorage`，需手動勾選儲存。
+Vite + React + TypeScript：六位數單宮斷、陰盤時刻 v0.4 九宮、環境化解決策、Supabase 會員／雲端存盤（需自行連線）。
+
+- 架構：`docs/architecture/ARCHITECTURE.md`
+- 規則索引：`docs/rules/QIMEN_RULES.md`
+- 環境變數：`docs/ENV.example.md`
+- v0.4 原始包：`/Users/shijingtang/Downloads/qimen_workspace`（未找到 `qimen_workspace_yinpan_v04.zip`）
 
 ## 本機執行
 
@@ -15,7 +20,20 @@ npm run dev
 npm run build
 npm run preview
 npm run self-check
+npm run test
+npm run typecheck
 ```
+
+## 導覽
+
+| 路徑 | 功能 |
+|------|------|
+| `/` | 首頁 |
+| `/time-chart` | 時盤／刻盤（v0.4 引擎） |
+| `/single-palace` | 六位數單宮斷 |
+| `/harms` | 四害快速查詢 |
+| `/charts` | 本機／雲端排盤 |
+| `/account` | 會員登入 |
 
 ## 六位碼順序（左→右）
 

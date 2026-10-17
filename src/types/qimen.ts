@@ -18,6 +18,8 @@ export interface DetectedHarm {
   targetValue: string
   reason: string
   remedyAnimal?: string
+  /** six-digit | xun-empty | time-plate */
+  source?: string
 }
 
 export interface EmptyVoidRemedy {
