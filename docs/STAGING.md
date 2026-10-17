@@ -40,9 +40,9 @@ npm run build
 npm run deploy:staging
 ```
 
-## Rate Limit namespace
+## Rate Limit（Wrangler ≥ 4.36）
 
-`wrangler.jsonc` 中 `ratelimits[].namespace_id` 為占位。部署前請依 [Cloudflare Rate Limiting](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/) 建立 namespace 並更新 ID；否則 Staging 可能無法通過 auth 限速檢查（503）。
+`ratelimits[].namespace_id` 是**自行指定的正整數字串**（不需在 Dashboard 另外建立 namespace 資源）。Staging 與 Production 必須使用**不同 ID**（目前為 `1001` / `1002`）。同一 ID 在不同 Worker 環境會各自計數。
 
 ## 驗證
 

@@ -1,0 +1,14 @@
+---
+description: Cloudflare Staging 部署與安全邊界（Phase 4）
+globs: wrangler.jsonc,worker/**,docs/STAGING.md,docs/CLOUDFLARE*.md
+alwaysApply: false
+---
+
+# Cloudflare Staging 約束
+
+- 使用 `wrangler.jsonc`（非 wrangler.toml）；D1 migration 目錄為 `drizzle/migrations`。
+- Staging：`wrangler deploy --env staging`、D1 `qimen-db-staging`；Production 需使用者明確確認。
+- 秘密僅 Wrangler Secrets / `.dev.vars`（勿提交 Git）；勿要求使用者將 Secret 貼到聊天。
+- Staging/Production 強制 Email 驗證與 Turnstile（`APP_ENV`）；前端 Turnstile 需 `VITE_TURNSTILE_SITE_KEY` 於 build 前設定。
+- Rate limit：`namespace_id` 為正整數字串（Staging `1001`、Production `1002`），無需另建 Dashboard namespace。
+- 不修改奇門 v0.4 vendor 演算法與 self-check 核心邏輯。
