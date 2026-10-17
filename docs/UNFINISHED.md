@@ -2,19 +2,21 @@
 
 ## 需 Supabase 連線後驗證
 
-- Email 註冊／登入／重設密碼／Session 持久化
-- 雲端存盤 UI（時刻盤、單宮盤主動儲存表單）
-- 歷史盤面完整還原 + 快照 vs 新引擎差異比較
-- RLS 跨使用者整合測試
+- Email 全流程（註冊、驗證信、重設密碼連結）於正式網域
+- RLS 跨使用者 A/B 整合測試
+- 雲端存盤／備註 E2E
 
-## 功能待補
+## 功能待補（不阻擋核心）
 
-- 時刻盤：十二長生、暗干、移星換斗完整 UI（引擎已有 rotate / longLife）
-- 匯出／匯入 JSON（單盤／全庫）
-- 符咒模組（僅白虎麒麟符提示欄位）
-- 雲端備註 CRUD 完整 UI
-- Playwright 使用者流程 E2E
+- 時刻盤：十二長生 UI（引擎 `longLife` 已有）
+- Playwright 主要流程 E2E
+- 匯入 JSON 直接寫入雲端（目前僅驗證格式 + 舊版 localStorage 匯入）
+- 完整逐欄位快照 diff UI（目前已有簡要比對 + 確認更新）
 
-## 資料
+## 已在本分支完成（程式）
 
-- 未找到 `qimen_workspace_yinpan_v04.zip`；已使用 `Downloads/qimen_workspace` 目錄
+- AuthProvider（signIn / signUp / signOut / reset / updatePassword）
+- 時刻／單宮「儲存盤面」對話框 + 防連點 + 登入後返回續存
+- ChartSnapshot 版本化模型
+- 我的排盤：搜尋、類型篩選、排序、開啟詳情、重新命名、備註 CRUD、匯出 JSON
+- 歷史詳情：九宮／單宮快照還原、重新計算預覽

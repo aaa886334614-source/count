@@ -32,8 +32,11 @@ npm run typecheck
 | `/time-chart` | 時盤／刻盤（v0.4 引擎） |
 | `/single-palace` | 六位數單宮斷 |
 | `/harms` | 四害快速查詢 |
-| `/charts` | 本機／雲端排盤 |
-| `/account` | 會員登入 |
+| `/charts` | 本機／雲端排盤列表 |
+| `/charts/:id` | 雲端盤面詳情與備註 |
+| `/account` | 會員登入（AuthProvider） |
+
+雲端存盤需 `.env` 設定 Supabase（見 `docs/ENV.example.md`）。未設定時仍可排盤，但不會假裝已連線。
 
 ## 六位碼順序（左→右）
 

@@ -1,16 +1,27 @@
-# 測試報告（整合分支）
+# 測試報告
 
-執行時間：2026-03-17（本機）
+執行環境：本機 `integrate-qimen-workspace` 分支
 
 | 指令 | 結果 |
 |------|------|
-| `npm run self-check` | 98 通過，0 失敗 |
-| `npm run test` (Vitest) | 12 通過（含 v0.4 核心、環境化解、RLS 規格） |
-| `npm run lint` (oxlint) | 通過（無 error） |
-| `npm run build` | 成功 |
+| `npm run self-check` | 98 通過 |
+| `npm run test` (Vitest) | **16** 通過（含原有 12 + 新增 4） |
+| `npm run lint` | oxlint |
+| `npm run build` | tsc + vite |
 
-## 未在本 CI 執行
+## Vitest 涵蓋（mock／domain）
 
-- Downloads v0.4 完整套件：`verify-original.js`、`verify-expanded.js`、`verify-browser-records.js`（原目錄 `npm test` 因缺 jsdom 路徑中斷；核心 `test_engine.js` 已由 Vitest 覆蓋）
-- Supabase 真實登入／RLS 跨帳號（需專案 URL + anon key）
-- Playwright E2E
+- 四害／環境化解（原有）
+- v0.4 引擎回歸（原有）
+- RLS 政策名稱規格
+- ChartSnapshot 建構／重算 diff
+- pending save sessionStorage
+- saveChart user_id mock 形狀
+
+## 未驗證（需 Supabase 專案）
+
+- 真實 Email 登入／驗證／重設密碼
+- RLS 跨帳號讀寫
+- 雲端備註 CRUD 連線
+
+**Mock 通過 ≠ 真實資料庫通過**

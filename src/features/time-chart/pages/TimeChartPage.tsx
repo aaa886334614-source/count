@@ -1,4 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { SaveChartDialog } from '@/features/chart-history/components/SaveChartDialog'
+import {
+  buildTimeChartSaveInput,
+  defaultTimeChartTitle,
+} from '@/features/chart-history/services/buildSavePayload'
+import { useResumePendingSave } from '@/features/chart-history/hooks/useResumePendingSave'
 import type { PalaceResult } from '@/types/qimen'
 import type { TimeChart, TimeChartMode } from '@/domain/qimen/time-chart/types'
 import { calculateYinpanBrowser, rotateYinpanBrowser } from '@/domain/qimen/time-chart/engine/yinpanBridgeBrowser'
@@ -15,7 +21,19 @@ import type { EmptyVoidFieldState } from '@/domain/qimen/treatments/types'
 
 const GRID_ORDER = [4, 9, 2, 3, 5, 7, 8, 1, 6] as const
 
+type WorkspaceState = {
+  localDateTime: string
+  mode: TimeChartMode
+  rotation: number
+  selectedPalace: number | null
+  emptyVoidField: EmptyVoidFieldState
+  chart: TimeChart
+}
+
 export function TimeChartPage() {
+  const { pending, shouldOpenSave, consumeWorkspace, clearResume } =
+    useResumePendingSave('/time-chart')
+  const [saveOpen, setSaveOpen] = useState(false)
   const [localDateTime, setLocalDateTime] = useState('2026-10-17T15:26')
   const [mode, setMode] = useState<TimeChartMode>('shi')
   const [chart, setChart] = useState<TimeChart | null>(null)
@@ -63,6 +81,25 @@ export function TimeChartPage() {
       emptyVoidField,
     })
   }, [selectedResult, oppositeResult, emptyVoidField])
+
+  useEffect(() => {
+    const ws = consumeWorkspace<WorkspaceState>()
+    if (ws?.chart) {
+      setLocalDateTime(ws.localDateTime)
+      setMode(ws.mode)
+      setChart(ws.chart)
+      setRotation(ws.rotation)
+      setSelectedPalace(ws.selectedPalace)
+      setEmptyVoidField(ws.emptyVoidField)
+      clearResume()
+    }
+  }, [pending])
+
+  useEffect(() => {
+    if (shouldOpenSave) setSaveOpen(true)
+  }, [shouldOpenSave])
+
+  const darkStems = chart?.raw?.darkStems as Record<number, string> | undefined
 
   function runChart(rot = 0) {
     try {
@@ -130,6 +167,15 @@ export function TimeChartPage() {
           自動起局
         </button>
         {chart && (
+          <button
+            type="button"
+            className="mt-3 w-full rounded-[16px] border py-2 font-medium"
+            onClick={() => setSaveOpen(true)}
+          >
+            儲存盤面
+          </button>
+        )}
+        {chart && (
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="text-sm text-[var(--color-muted)]">
               {chart.metadata.season}
@@ -162,6 +208,15 @@ export function TimeChartPage() {
         <p className="rounded-[16px] bg-[var(--color-wine-soft)] px-4 py-3 text-[var(--color-wine)]">
           {error}
         </p>
+      )}
+
+      {darkStems && (
+        <details className="rounded-lg bg-white p-3 ring-1 ring-[var(--color-line)]">
+          <summary className="cursor-pointer font-medium">暗干</summary>
+          <pre className="mt-2 overflow-auto text-xs">
+            {JSON.stringify(darkStems, null, 2)}
+          </pre>
+        </details>
       )}
 
       {chart && (
@@ -220,6 +275,48 @@ export function TimeChartPage() {
           {plan && <EnvironmentPlanPanel plan={plan} />}
         </>
       )}
+
+      <SaveChartDialog
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        defaultTitle={
+          chart
+            ? defaultTimeChartTitle(localDateTime, mode)
+            : '時刻排盤'
+        }
+        returnPath="/time-chart"
+        workspaceState={
+          chart
+            ? ({
+                localDateTime,
+                mode,
+                rotation,
+                selectedPalace,
+                emptyVoidField,
+                chart,
+              } satisfies WorkspaceState)
+            : undefined
+        }
+        buildSaveInput={() => {
+          if (!chart) return null
+          return buildTimeChartSaveInput({
+            title: defaultTimeChartTitle(localDateTime, mode),
+            chart,
+            rotation,
+            selectedPalace,
+            emptyVoidField,
+            focus:
+              selectedResult && selectedPalace != null && plan
+                ? {
+                    palaceNumber: selectedPalace,
+                    palaceResult: selectedResult,
+                    oppositeResult: oppositeResult,
+                    treatmentPlan: plan,
+                  }
+                : undefined,
+          })
+        }}
+      />
     </>
   )
 }

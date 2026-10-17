@@ -1,4 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { SaveChartDialog } from '@/features/chart-history/components/SaveChartDialog'
+import {
+  buildSinglePalaceSaveInput,
+  defaultSinglePalaceTitle,
+} from '@/features/chart-history/services/buildSavePayload'
+import { useResumePendingSave } from '@/features/chart-history/hooks/useResumePendingSave'
 import type { HistoryRecord, PalaceResult, StemChoice } from '@/types/qimen'
 import { normalizeInput } from '@/utils/normalizeInput'
 import { parseSixCode } from '@/utils/parseCode'
@@ -28,7 +34,20 @@ import {
 } from '@/domain/qimen/treatments/buildEnvironmentActions'
 import { calculatePalace as calc } from '@/utils/calculatePalace'
 
+type SingleWorkspace = {
+  input: string
+  result: PalaceResult
+  heavenChoice?: StemChoice
+  earthChoice?: StemChoice
+  emptyVoidField: EmptyVoidFieldState
+  oppositeCode: string
+  oppositeResult: PalaceResult | null
+}
+
 export function SinglePalacePage() {
+  const { pending, shouldOpenSave, consumeWorkspace, clearResume } =
+    useResumePendingSave('/single-palace')
+  const [saveOpen, setSaveOpen] = useState(false)
   const [input, setInput] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<PalaceResult | null>(null)
@@ -67,6 +86,24 @@ export function SinglePalacePage() {
   const pendingReqs = pendingCode
     ? stemChoiceRequirements(pendingCode)
     : { needsHeaven: false, needsEarth: false }
+
+  useEffect(() => {
+    const ws = consumeWorkspace<SingleWorkspace>()
+    if (ws?.result) {
+      setInput(ws.input)
+      setResult(ws.result)
+      setHeavenChoice(ws.heavenChoice)
+      setEarthChoice(ws.earthChoice)
+      setEmptyVoidField(ws.emptyVoidField)
+      setOppositeCode(ws.oppositeCode)
+      setOppositeResult(ws.oppositeResult)
+      clearResume()
+    }
+  }, [pending])
+
+  useEffect(() => {
+    if (shouldOpenSave) setSaveOpen(true)
+  }, [shouldOpenSave])
 
   const treatmentPlan = useMemo(() => {
     if (!result) return null
@@ -317,6 +354,13 @@ export function SinglePalacePage() {
           />
           <HarmResult harms={result.harms} />
           {treatmentPlan && <EnvironmentPlanPanel plan={treatmentPlan} />}
+          <button
+            type="button"
+            className="btn-press h-12 w-full rounded-[16px] border font-medium"
+            onClick={() => setSaveOpen(true)}
+          >
+            儲存盤面（雲端）
+          </button>
           <SavePrompt
             checked={saveChecked}
             note={saveNote}
@@ -354,6 +398,45 @@ export function SinglePalacePage() {
         onConfirm={() => {
           clearAll()
           setConfirmClear(false)
+        }}
+      />
+
+      <SaveChartDialog
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        defaultTitle={
+          result
+            ? defaultSinglePalaceTitle(result.normalizedCode)
+            : '六位數單宮'
+        }
+        returnPath="/single-palace"
+        workspaceState={
+          result
+            ? ({
+                input,
+                result,
+                heavenChoice,
+                earthChoice,
+                emptyVoidField,
+                oppositeCode,
+                oppositeResult,
+              } satisfies SingleWorkspace)
+            : undefined
+        }
+        buildSaveInput={() => {
+          if (!result) return null
+          return buildSinglePalaceSaveInput({
+            title: defaultSinglePalaceTitle(result.normalizedCode),
+            rawInput: result.rawInput,
+            normalizedCode: result.normalizedCode,
+            heavenStemChoice: result.heavenStemChoice,
+            earthStemChoice: result.earthStemChoice,
+            palaceResult: result,
+            emptyVoidField,
+            oppositePalaceResult: oppositeResult,
+            oppositeInputCode: oppositeCode,
+            treatmentPlan: treatmentPlan ?? null,
+          })
         }}
       />
     </>

@@ -13,7 +13,9 @@
 
 1. **六位數**：`parseSixCode` → `calculatePalace` → `detectHarms` → `buildEnvironmentActions`
 2. **時刻盤**：`yinpanBridgeBrowser.calculate` → `mapYinpanPalaceToResult` → 同上（對宮由九宮自動帶入）
-3. **存盤**：使用者按「儲存」→（登入後）`chartRepository.saveChart` → PostgreSQL + RLS
+3. **存盤**：`SaveChartDialog` →（未登入則 `pendingSaveStorage` + `/account`）→ `chartRepository.saveChart` + 可選首筆 `chart_notes`
+4. **歷史**：`/charts` 列表 → `/charts/:id` 讀取 `chart_snapshot` 還原（預設快照，可選「最新規則重新計算」）
+5. **Auth**：全站 `AuthProvider`（`main.tsx`），頁面使用 `useAuth()`，不各自管理 session
 
 ## 模組依賴
 
