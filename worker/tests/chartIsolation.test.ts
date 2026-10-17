@@ -7,6 +7,7 @@ import {
 } from '../services/chartService'
 import {
   createNote,
+  deleteNote,
   getNoteForUser,
   listNotes,
   updateNote,
@@ -71,5 +72,7 @@ describe('D1 chart repository 隔離（SQLite 本機）', () => {
     expect(hacked).toBeNull()
     const noteStill = await getNoteForUser(db, USER_A, noteA!.id)
     expect(noteStill?.content).toBe('A 備註')
+    const deleted = await deleteNote(db, USER_B, noteA!.id)
+    expect(deleted).toBe(false)
   })
 })

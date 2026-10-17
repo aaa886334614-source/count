@@ -1,5 +1,12 @@
 import type { Env } from '../env'
 
+export class EmailNotConfiguredError extends Error {
+  constructor() {
+    super('EMAIL_PROVIDER_NOT_CONFIGURED')
+    this.name = 'EmailNotConfiguredError'
+  }
+}
+
 export async function sendAuthEmail(
   env: Env,
   message: { to: string; subject: string; html: string },
@@ -7,11 +14,11 @@ export async function sendAuthEmail(
   const key = env.RESEND_API_KEY
   if (!key) {
     console.warn(
-      '[auth] RESEND_API_KEY 未設定，無法寄送郵件：',
+      '[auth] RESEND_API_KEY 未設定，無法寄送：',
       message.subject,
       message.to,
     )
-    throw new Error('EMAIL_PROVIDER_NOT_CONFIGURED')
+    throw new EmailNotConfiguredError()
   }
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',

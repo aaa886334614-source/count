@@ -3,13 +3,19 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { createDb, schema } from '../db/client'
 import type { Env } from '../env'
 import { sendAuthEmail } from './email'
+import { resetPasswordEmailHtml, verificationEmailHtml } from './emailTemplates'
+
+function isPublicEnv(env: Env): boolean {
+  return env.APP_ENV === 'staging' || env.APP_ENV === 'production'
+}
 
 export function createAuth(env: Env) {
   const db = createDb(env.DB)
   const trusted = env.TRUSTED_ORIGINS?.split(',').map((s) => s.trim()).filter(Boolean) ?? [
     env.BETTER_AUTH_URL,
   ]
-  const requireVerify = env.REQUIRE_EMAIL_VERIFICATION === '1'
+  const requireVerify =
+    env.REQUIRE_EMAIL_VERIFICATION === '1' || isPublicEnv(env)
 
   return betterAuth({
     secret: env.BETTER_AUTH_SECRET,
@@ -26,16 +32,18 @@ export function createAuth(env: Env) {
         await sendAuthEmail(env, {
           to: user.email,
           subject: '奇門遁甲 — 重設密碼',
-          html: `<p>請在 1 小時內開啟連結重設密碼：</p><p><a href="${url}">${url}</a></p>`,
+          html: resetPasswordEmailHtml(url),
         })
       },
     },
     emailVerification: {
+      sendOnSignUp: true,
+      autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) => {
         await sendAuthEmail(env, {
           to: user.email,
-          subject: '奇門遁甲 — 驗證 Email',
-          html: `<p>請完成 Email 驗證：</p><p><a href="${url}">${url}</a></p>`,
+          subject: '奇門遁甲 — 請驗證您的 Email',
+          html: verificationEmailHtml(url),
         })
       },
     },

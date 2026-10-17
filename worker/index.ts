@@ -3,7 +3,7 @@ import { cors } from 'hono/cors'
 import { createAuth } from './auth/auth'
 import type { Env } from './env'
 import { rateLimit } from './middleware/rateLimit'
-import { optionalTurnstile } from './middleware/turnstile'
+import { authTurnstile } from './middleware/turnstile'
 import { chartsRoutes } from './routes/charts'
 import { notesRoutes } from './routes/notes'
 import { profileRoutes } from './routes/profile'
@@ -31,13 +31,22 @@ app.get('/api/health', (c) =>
     backend: 'cloudflare-workers',
     auth: 'better-auth',
     database: 'd1',
+    appEnv: c.env.APP_ENV ?? 'development',
+    turnstileRequired:
+      c.env.TURNSTILE_REQUIRED === '1' ||
+      c.env.APP_ENV === 'staging' ||
+      c.env.APP_ENV === 'production',
+    emailVerificationRequired:
+      c.env.REQUIRE_EMAIL_VERIFICATION === '1' ||
+      c.env.APP_ENV === 'staging' ||
+      c.env.APP_ENV === 'production',
   }),
 )
 
-app.all('/api/auth/*', optionalTurnstile, rateLimit({
+app.all('/api/auth/*', authTurnstile, rateLimit({
   keyPrefix: 'auth',
   limit: 30,
-  windowMs: 60_000,
+  periodSeconds: 60,
 }), async (c) => {
   const auth = createAuth(c.env)
   return auth.handler(c.req.raw)

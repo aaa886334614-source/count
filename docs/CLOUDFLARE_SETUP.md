@@ -10,11 +10,23 @@ npx wrangler login
 
 ## 2. 建立 D1 資料庫
 
+本機開發使用 `qimen-db`（wrangler 預設）。**Staging / Production 請分開建立**，見 `docs/STAGING.md`。
+
 ```bash
-npx wrangler d1 create qimen-db
+npx wrangler d1 create qimen-db          # 本機／開發
+npx wrangler d1 create qimen-db-staging  # Staging only
+npx wrangler d1 create qimen-db-production
 ```
 
-將輸出的 `database_id` 填入 `wrangler.jsonc` 的 `d1_databases[0].database_id`（本機 `--local` 可不填真實 ID）。
+Migration 目錄固定為 **`drizzle/migrations/`**（與 `drizzle.config.ts` 的 `out` 一致）。套用指令：
+
+```bash
+npm run db:migrate:local      # 本機 D1
+npm run db:migrate:staging    # 僅 Staging remote（確認後）
+npm run db:migrate:production # 僅 Production remote（確認後）
+```
+
+Wrangler 在 D1 內維護 migration 紀錄，同一資料庫不會重複套用同一檔案。
 
 ## 3. 本機秘密變數
 

@@ -1,19 +1,47 @@
 import { createMiddleware } from 'hono/factory'
+import type { Env } from '../env'
 
-const buckets = new Map<string, { count: number; resetAt: number }>()
+const devBuckets = new Map<string, { count: number; resetAt: number }>()
 
-/** 簡易速率限制（Worker 隔離內記憶體；正式環境可改 Durable Object / KV） */
-export function rateLimit(opts: { keyPrefix: string; limit: number; windowMs: number }) {
-  return createMiddleware(async (c, next) => {
+function isDevEnv(env: Env): boolean {
+  return !env.APP_ENV || env.APP_ENV === 'development'
+}
+
+/** 速率限制：Staging/Production 優先使用 Cloudflare Rate Limit binding；本機 dev 才用記憶體 fallback */
+export function rateLimit(opts: {
+  keyPrefix: string
+  limit: number
+  periodSeconds: 10 | 60
+}) {
+  return createMiddleware<{ Bindings: Env }>(async (c, next) => {
     const ip =
       c.req.header('CF-Connecting-IP') ??
-      c.req.header('x-forwarded-for') ??
+      c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ??
       'unknown'
     const key = `${opts.keyPrefix}:${ip}`
+
+    const binding = c.env.AUTH_RATE_LIMITER
+    if (binding) {
+      const outcome = await binding.limit({ key })
+      if (!outcome.success) {
+        return c.json({ error: '請求過於頻繁，請稍後再試' }, 429)
+      }
+      await next()
+      return
+    }
+
+    if (!isDevEnv(c.env)) {
+      console.error(
+        '[rateLimit] AUTH_RATE_LIMITER 未綁定，Staging/Production 無法提供可靠限速',
+      )
+      return c.json({ error: '伺服器限速設定未完成' }, 503)
+    }
+
     const now = Date.now()
-    const cur = buckets.get(key)
+    const windowMs = opts.periodSeconds * 1000
+    const cur = devBuckets.get(key)
     if (!cur || cur.resetAt < now) {
-      buckets.set(key, { count: 1, resetAt: now + opts.windowMs })
+      devBuckets.set(key, { count: 1, resetAt: now + windowMs })
       await next()
       return
     }

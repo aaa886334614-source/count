@@ -5,7 +5,7 @@
   "compatibility_date": "2025-03-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
-    "directory": "./dist/client",
+    "directory": "./dist/client/client",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
@@ -17,7 +17,56 @@
     }
   ],
   "vars": {
+    "APP_ENV": "development",
     "BETTER_AUTH_URL": "http://localhost:5173",
-    "TRUSTED_ORIGINS": "http://localhost:5173"
+    "TRUSTED_ORIGINS": "http://localhost:5173",
+    "TURNSTILE_REQUIRED": "0",
+    "REQUIRE_EMAIL_VERIFICATION": "0"
+  },
+  "env": {
+    "staging": {
+      "name": "qimen-staging",
+      "vars": {
+        "APP_ENV": "staging",
+        "TURNSTILE_REQUIRED": "1",
+        "REQUIRE_EMAIL_VERIFICATION": "1"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "qimen-db-staging",
+          "migrations_dir": "drizzle/migrations"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "AUTH_RATE_LIMITER",
+          "namespace_id": "1001",
+          "simple": { "limit": 30, "period": 60 }
+        }
+      ]
+    },
+    "production": {
+      "name": "qimen",
+      "vars": {
+        "APP_ENV": "production",
+        "TURNSTILE_REQUIRED": "1",
+        "REQUIRE_EMAIL_VERIFICATION": "1"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "qimen-db-production",
+          "migrations_dir": "drizzle/migrations"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "AUTH_RATE_LIMITER",
+          "namespace_id": "1002",
+          "simple": { "limit": 30, "period": 60 }
+        }
+      ]
+    }
   }
 }

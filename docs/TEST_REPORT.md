@@ -1,27 +1,29 @@
 # 測試報告
 
-執行環境：本機 `integrate-qimen-workspace` 分支（Cloudflare 架構）
+## 基準（Cloudflare 整合）
 
-| 指令 | 結果 |
-|------|------|
-| `npm run self-check` | **98** 通過 |
-| `npm run test` (Vitest) | **18** 通過 |
-| `npm run lint` | oxlint（僅既有 warnings） |
-| `npm run typecheck` | 通過 |
-| `npm run build` | 通過（Vite + Cloudflare plugin） |
-| `npm run db:migrate:local` | `0000_initial.sql` 套用成功 |
+見 `docs/BASELINE.md` — commit **`51ec34d`**：self-check 98、Vitest 18。
 
-## Vitest 涵蓋
+## 最新（Phase 3 上線準備）
 
-- 四害／環境化解、v0.4 引擎（domain）
-- ChartSnapshot、pending save
-- API SaveChartInput 規格（含 `ruleVersion`）
-- **worker/tests/chartIsolation.test.ts**：User A/B 盤面與備註隔離（SQLite 本機）
+| 層級 | 指令 | 結果 |
+|------|------|------|
+| 單元／整合（本機） | `npm run self-check` | **98** 通過 |
+| 單元／整合（本機） | `npm run test` | **22** 通過 |
+| 靜態 | `npm run lint` | oxlint warnings（非阻擋） |
+| 型別 | `npm run typecheck` | 通過 |
+| 建置 | `npm run build` | 通過 |
+| Staging E2E | `npm run test:e2e` | 需 `E2E_BASE_URL`，否則 skip |
 
-## 未在 CI 自動驗證
+### Vitest 新增重點
 
-- 正式 Cloudflare D1 remote + Secrets 下的 Better Auth 全流程
-- Resend 寄信、Turnstile 正式金鑰
-- Playwright E2E
+- `worker/tests/requireAuth.test.ts` — 401／Session userId
+- `worker/tests/chartIsolation.test.ts` — A/B 盤面與備註（含刪除）
+- `src/tests/chart-history/snapshotRestoreFields.test.ts` — 快照欄位
 
-**SQLite 隔離測試通過 ≠ 正式 Workers 部署已驗證**（需依 `docs/CLOUDFLARE_SETUP.md` 部署後手動測登入／存盤）。
+### 尚未自動驗證
+
+- Staging 真實：註冊→驗證信→登入→存盤→還原（需 Resend + Turnstile + D1 remote）
+- Production 部署
+
+**22 項 Vitest 通過 ≠ Staging 真實環境通過。**

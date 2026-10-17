@@ -34,6 +34,10 @@ export interface AuthContextValue {
     turnstileToken?: string,
   ) => Promise<{ error: AuthErrorLike | null }>
   updatePassword: (password: string) => Promise<{ error: AuthErrorLike | null }>
+  resendVerificationEmail: (
+    email: string,
+    turnstileToken?: string,
+  ) => Promise<{ error: AuthErrorLike | null }>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -138,6 +142,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error ? mapError(error) : null }
   }, [])
 
+  const resendVerificationEmail = useCallback(
+    async (email: string, turnstileToken?: string) => {
+      try {
+        await apiFetch('/api/auth/send-verification-email', {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+          turnstileToken,
+        })
+        return { error: null }
+      } catch (e) {
+        return { error: mapError(e) }
+      }
+    },
+    [],
+  )
+
   const value = useMemo(
     () => ({
       user,
@@ -148,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       resetPassword,
       updatePassword,
+      resendVerificationEmail,
     }),
     [
       user,
@@ -158,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       resetPassword,
       updatePassword,
+      resendVerificationEmail,
     ],
   )
 
@@ -184,5 +206,6 @@ export function useAuth() {
     signOut: ctx.signOut,
     resetPassword: ctx.resetPassword,
     updatePassword: ctx.updatePassword,
+    resendVerificationEmail: ctx.resendVerificationEmail,
   }
 }

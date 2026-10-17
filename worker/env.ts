@@ -1,6 +1,10 @@
 export interface Env {
   DB: D1Database
   ASSETS: Fetcher
+  /** Cloudflare Rate Limit API（Staging/Production 必須綁定） */
+  AUTH_RATE_LIMITER?: RateLimit
+  /** development | staging | production */
+  APP_ENV?: string
   BETTER_AUTH_SECRET: string
   BETTER_AUTH_URL: string
   TRUSTED_ORIGINS?: string
