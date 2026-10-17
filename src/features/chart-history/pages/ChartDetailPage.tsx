@@ -7,7 +7,7 @@ import {
   updateChartTitle,
   deleteChart,
   type ChartRow,
-} from '@/infrastructure/supabase/chartRepository'
+} from '@/infrastructure/api/chartRepository'
 import { parseChartSnapshot } from '@/features/chart-history/services/parseSnapshot'
 import {
   diffSnapshots,
@@ -98,7 +98,7 @@ export function ChartDetailPage() {
   if (!configured) {
     return (
       <p className="text-[var(--color-muted)]">
-        請先設定 Supabase（docs/ENV.example.md）
+        後端 API 未就緒（見 docs/CLOUDFLARE_SETUP.md）
       </p>
     )
   }

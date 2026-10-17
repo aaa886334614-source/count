@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qimen",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-03-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "qimen-db",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:5173",
+    "TRUSTED_ORIGINS": "http://localhost:5173"
+  }
+}

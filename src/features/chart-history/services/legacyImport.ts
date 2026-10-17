@@ -1,5 +1,5 @@
 import type { HistoryRecord } from '@/types/qimen'
-import { saveChart } from '@/infrastructure/supabase/chartRepository'
+import { saveChart } from '@/infrastructure/api/chartRepository'
 import { buildSinglePalaceSaveInput } from './buildSavePayload'
 import { calculatePalace } from '@/utils/calculatePalace'
 import {

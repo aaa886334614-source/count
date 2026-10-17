@@ -31,6 +31,7 @@ describe('pending save sessionStorage', () => {
         calculationContext: {},
         chartSnapshot: {},
         engineVersion: 'x',
+        ruleVersion: '1.0.0',
       },
       openSaveDialog: true,
     })

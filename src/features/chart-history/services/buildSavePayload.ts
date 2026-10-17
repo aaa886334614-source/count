@@ -12,7 +12,7 @@ import type { TreatmentPlan } from '@/domain/qimen/treatments/types'
 import type { EmptyVoidFieldState } from '@/domain/qimen/treatments/types'
 import type { TimeChart } from '@/domain/qimen/time-chart/types'
 import type { PalaceResult, StemChoice } from '@/types/qimen'
-import type { ChartType, SaveChartInput } from '@/infrastructure/supabase/chartRepository'
+import type { ChartType, SaveChartInput } from '@/infrastructure/api/types'
 
 function meta(engineVersion: string) {
   return {
@@ -65,6 +65,7 @@ export function buildSinglePalaceSaveInput(opts: {
     },
     chartSnapshot: snapshot,
     engineVersion: SINGLE_PALACE_ENGINE_VERSION,
+    ruleVersion: HARM_RULES_VERSION,
     schemaVersion: SNAPSHOT_SCHEMA_VERSION,
   }
 }
@@ -123,6 +124,7 @@ export function buildTimeChartSaveInput(opts: {
     },
     chartSnapshot: snapshot,
     engineVersion: TIME_ENGINE_VERSION,
+    ruleVersion: HARM_RULES_VERSION,
     schemaVersion: SNAPSHOT_SCHEMA_VERSION,
   }
 }

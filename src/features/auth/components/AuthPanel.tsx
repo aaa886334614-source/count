@@ -42,9 +42,9 @@ export function AuthPanel() {
       <section className="rounded-[16px] bg-white p-4 ring-1 ring-[var(--color-line)]">
         <h2 className="text-lg font-semibold">會員登入</h2>
         <p className="mt-2 text-[15px] text-[var(--color-muted)]">
-          Supabase 尚未連線。請在專案根目錄建立 <code>.env</code>（範例見
-          docs/ENV.example.md），設定 <code>VITE_SUPABASE_URL</code> 與{' '}
-          <code>VITE_SUPABASE_ANON_KEY</code> 後重新啟動 dev server。
+          Cloudflare Workers API 尚未連線。請使用{' '}
+          <code>npm run dev</code>（含 @cloudflare/vite-plugin）並套用 D1
+          migration，詳見 docs/CLOUDFLARE_SETUP.md。
         </p>
         <p className="mt-2 text-sm text-[var(--color-muted)]">
           未連線時仍可離線排盤；雲端存盤程式已就緒，但不會假裝已驗證連線。
@@ -62,7 +62,7 @@ export function AuthPanel() {
       <section className="rounded-[16px] bg-white p-4 ring-1 ring-[var(--color-line)]">
         <h2 className="text-lg font-semibold">已登入</h2>
         <p className="mt-2 text-sm">{user.email}</p>
-        {!user.email_confirmed_at && (
+        {!user.emailVerified && (
           <p className="mt-2 text-sm text-[var(--color-wine)]">
             信箱尚未驗證，請至 Email 完成驗證（若專案已啟用）。
           </p>

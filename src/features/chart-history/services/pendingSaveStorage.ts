@@ -1,4 +1,4 @@
-import type { SaveChartInput } from '@/infrastructure/supabase/chartRepository'
+import type { SaveChartInput } from '@/infrastructure/api/types'
 
 const KEY = 'qimen-pending-save-v1'
 

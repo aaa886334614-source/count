@@ -2,11 +2,11 @@
 
 分支：`integrate-qimen-workspace`（Git  repo：`奇門遁甲算`）
 
-Vite + React + TypeScript：六位數單宮斷、陰盤時刻 v0.4 九宮、環境化解決策、Supabase 會員／雲端存盤（需自行連線）。
+Vite + React + TypeScript：六位數單宮斷、陰盤時刻 v0.4 九宮、環境化解決策；會員與雲端存盤使用 **Cloudflare Workers + D1 + Better Auth**。
 
 - 架構：`docs/architecture/ARCHITECTURE.md`
 - 規則索引：`docs/rules/QIMEN_RULES.md`
-- 環境變數：`docs/ENV.example.md`
+- Cloudflare：`docs/CLOUDFLARE_SETUP.md`
 - v0.4 原始包：`/Users/shijingtang/Downloads/qimen_workspace`（未找到 `qimen_workspace_yinpan_v04.zip`）
 
 ## 本機執行
@@ -36,7 +36,7 @@ npm run typecheck
 | `/charts/:id` | 雲端盤面詳情與備註 |
 | `/account` | 會員登入（AuthProvider） |
 
-雲端存盤需 `.env` 設定 Supabase（見 `docs/ENV.example.md`）。未設定時仍可排盤，但不會假裝已連線。
+雲端存盤需本機或正式 Cloudflare 設定（見 `docs/CLOUDFLARE_SETUP.md`）。未連線 API 時仍可排盤，但不會假裝已雲端儲存。
 
 ## 六位碼順序（左→右）
 

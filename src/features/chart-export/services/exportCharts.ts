@@ -1,4 +1,4 @@
-import type { ChartRow } from '@/infrastructure/supabase/chartRepository'
+import type { ChartRow } from '@/infrastructure/api/types'
 
 export function exportChartsAsJson(rows: ChartRow[], filename?: string): void {
   const blob = new Blob([JSON.stringify(rows, null, 2)], {

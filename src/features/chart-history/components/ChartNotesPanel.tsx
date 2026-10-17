@@ -5,7 +5,7 @@ import {
   listNotesForChart,
   updateNote,
   type ChartNoteRow,
-} from '@/infrastructure/supabase/noteRepository'
+} from '@/infrastructure/api/noteRepository'
 import { useAuth } from '@/app/providers/AuthProvider'
 
 export function ChartNotesPanel({ chartId }: { chartId: string }) {
@@ -56,7 +56,7 @@ export function ChartNotesPanel({ chartId }: { chartId: string }) {
                     type="button"
                     className="rounded bg-[var(--color-wine)] px-2 py-1 text-white"
                     onClick={() =>
-                      void updateNote(n.id, editText).then((u) => {
+                      void updateNote(chartId, n.id, editText).then((u) => {
                         setNotes((prev) =>
                           prev.map((x) => (x.id === u.id ? u : x)),
                         )
@@ -91,7 +91,7 @@ export function ChartNotesPanel({ chartId }: { chartId: string }) {
                     type="button"
                     className="text-[var(--color-wine)]"
                     onClick={() =>
-                      void deleteNote(n.id).then(() =>
+                      void deleteNote(chartId, n.id).then(() =>
                         setNotes((prev) => prev.filter((x) => x.id !== n.id)),
                       )
                     }

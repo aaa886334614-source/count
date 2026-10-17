@@ -7,113 +7,140 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import type { AuthError, Session, User } from '@supabase/supabase-js'
-import { getSupabase, isSupabaseConfigured } from '@/infrastructure/supabase/client'
+import { authClient, type AuthUser } from '@/infrastructure/api/authClient'
+import { apiFetch, isBackendConfigured } from '@/infrastructure/api/http'
+
+export interface AuthErrorLike {
+  message: string
+}
 
 export interface AuthContextValue {
-  user: User | null
-  session: Session | null
+  user: AuthUser | null
   loading: boolean
   configured: boolean
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>
-  signOut: () => Promise<{ error: AuthError | null }>
-  resetPassword: (email: string) => Promise<{ error: AuthError | null }>
-  updatePassword: (password: string) => Promise<{ error: AuthError | null }>
+  signIn: (
+    email: string,
+    password: string,
+    turnstileToken?: string,
+  ) => Promise<{ error: AuthErrorLike | null }>
+  signUp: (
+    email: string,
+    password: string,
+    turnstileToken?: string,
+  ) => Promise<{ error: AuthErrorLike | null }>
+  signOut: () => Promise<{ error: AuthErrorLike | null }>
+  resetPassword: (
+    email: string,
+    turnstileToken?: string,
+  ) => Promise<{ error: AuthErrorLike | null }>
+  updatePassword: (password: string) => Promise<{ error: AuthErrorLike | null }>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+function mapError(err: unknown): AuthErrorLike {
+  if (err && typeof err === 'object' && 'message' in err) {
+    return { message: String((err as { message: unknown }).message) }
+  }
+  return { message: '操作失敗' }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const configured = isSupabaseConfigured()
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(configured)
+  const { data: sessionData, isPending } = authClient.useSession()
+  const [configured, setConfigured] = useState(false)
+  const [configChecked, setConfigChecked] = useState(false)
 
   useEffect(() => {
-    if (!configured) {
-      setLoading(false)
-      return
+    void isBackendConfigured().then((ok) => {
+      setConfigured(ok)
+      setConfigChecked(true)
+    })
+  }, [])
+
+  const user = useMemo((): AuthUser | null => {
+    const u = sessionData?.user
+    if (!u) return null
+    return {
+      id: u.id,
+      email: u.email,
+      name: u.name,
+      emailVerified: u.emailVerified,
+      image: u.image,
     }
-    const sb = getSupabase()
-    void sb.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setUser(data.session?.user ?? null)
-      setLoading(false)
-    })
-    const { data: sub } = sb.auth.onAuthStateChange((_event, s) => {
-      setSession(s)
-      setUser(s?.user ?? null)
-      setLoading(false)
-    })
-    return () => sub.subscription.unsubscribe()
-  }, [configured])
+  }, [sessionData?.user])
+
+  const loading = !configChecked || isPending
 
   const signIn = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, turnstileToken?: string) => {
       if (!configured) {
-        return { error: { message: 'Supabase 尚未設定' } as AuthError }
+        return { error: { message: '後端 API 尚未就緒（請使用 wrangler / Cloudflare dev）' } }
       }
-      const { error } = await getSupabase().auth.signInWithPassword({
+      const { error } = await authClient.signIn.email({
         email,
         password,
+        fetchOptions: turnstileToken
+          ? { headers: { 'x-turnstile-token': turnstileToken } }
+          : undefined,
       })
-      return { error }
+      return { error: error ? mapError(error) : null }
     },
     [configured],
   )
 
   const signUp = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, turnstileToken?: string) => {
       if (!configured) {
-        return { error: { message: 'Supabase 尚未設定' } as AuthError }
+        return { error: { message: '後端 API 尚未就緒' } }
       }
-      const { error } = await getSupabase().auth.signUp({
+      const { error } = await authClient.signUp.email({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/account`,
-        },
+        name: email.split('@')[0] ?? '會員',
+        fetchOptions: turnstileToken
+          ? { headers: { 'x-turnstile-token': turnstileToken } }
+          : undefined,
       })
-      return { error }
+      return { error: error ? mapError(error) : null }
     },
     [configured],
   )
 
   const signOut = useCallback(async () => {
-    if (!configured) return { error: null }
-    const { error } = await getSupabase().auth.signOut()
-    return { error }
-  }, [configured])
+    const { error } = await authClient.signOut()
+    return { error: error ? mapError(error) : null }
+  }, [])
 
   const resetPassword = useCallback(
-    async (email: string) => {
+    async (email: string, turnstileToken?: string) => {
       if (!configured) {
-        return { error: { message: 'Supabase 尚未設定' } as AuthError }
+        return { error: { message: '後端 API 尚未就緒' } }
       }
-      const { error } = await getSupabase().auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/account?recovery=1`,
-      })
-      return { error }
+      try {
+        await apiFetch('/api/auth/request-password-reset', {
+          method: 'POST',
+          body: JSON.stringify({
+            email,
+            redirectTo: `${window.location.origin}/account?recovery=1`,
+          }),
+          turnstileToken,
+        })
+        return { error: null }
+      } catch (e) {
+        return { error: mapError(e) }
+      }
     },
     [configured],
   )
 
-  const updatePassword = useCallback(
-    async (password: string) => {
-      if (!configured) {
-        return { error: { message: 'Supabase 尚未設定' } as AuthError }
-      }
-      const { error } = await getSupabase().auth.updateUser({ password })
-      return { error }
-    },
-    [configured],
-  )
+  const updatePassword = useCallback(async (password: string) => {
+    const { error } = await authClient.resetPassword({ newPassword: password })
+    return { error: error ? mapError(error) : null }
+  }, [])
 
   const value = useMemo(
     () => ({
       user,
-      session,
       loading,
       configured,
       signIn,
@@ -124,7 +151,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }),
     [
       user,
-      session,
       loading,
       configured,
       signIn,
@@ -146,12 +172,10 @@ export function useAuthContext(): AuthContextValue {
   return ctx
 }
 
-/** 與舊 hook 相容 */
 export function useAuth() {
   const ctx = useAuthContext()
   return {
     user: ctx.user,
-    session: ctx.session,
     ready: !ctx.loading,
     loading: ctx.loading,
     configured: ctx.configured,

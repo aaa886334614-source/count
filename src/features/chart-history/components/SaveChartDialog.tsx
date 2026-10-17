@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/app/providers/AuthProvider'
-import type { SaveChartInput } from '@/infrastructure/supabase/chartRepository'
-import { saveChart } from '@/infrastructure/supabase/chartRepository'
+import type { SaveChartInput } from '@/infrastructure/api/types'
+import { saveChart } from '@/infrastructure/api/chartRepository'
 import {
   clearPendingSave,
   readPendingSave,
@@ -55,7 +55,7 @@ export function SaveChartDialog(props: {
     }
     const payload = { ...input, title: title.trim() }
     if (!configured) {
-      setError('Supabase 尚未設定，無法雲端存盤')
+      setError('後端 API 未就緒，無法雲端存盤（請使用 Cloudflare 本機 dev）')
       return
     }
     if (!user) {

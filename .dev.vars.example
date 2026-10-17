@@ -1,0 +1,11 @@
+# 複製為 .dev.vars（勿提交 Git），供 wrangler dev / Vite Cloudflare 本機使用
+BETTER_AUTH_SECRET=請用-openssl-rand-base64-32-產生
+BETTER_AUTH_URL=http://localhost:5173
+TRUSTED_ORIGINS=http://localhost:5173
+
+# 選用：Turnstile（TURNSTILE_REQUIRED=1 時後端會強制驗證）
+TURNSTILE_SECRET_KEY=
+TURNSTILE_REQUIRED=0
+
+# 選用：寄信（未設定時 Email 驗證／重設密碼無法真正寄送）
+RESEND_API_KEY=

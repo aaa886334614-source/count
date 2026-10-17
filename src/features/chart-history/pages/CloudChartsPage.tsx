@@ -4,8 +4,8 @@ import {
   deleteChart,
   listCharts,
   type ChartRow,
-} from '@/infrastructure/supabase/chartRepository'
-import { listNotesForChart } from '@/infrastructure/supabase/noteRepository'
+} from '@/infrastructure/api/chartRepository'
+import { listNotesForChart } from '@/infrastructure/api/noteRepository'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { importLegacyHistory } from '@/features/chart-history/services/legacyImport'
 import { HistoryList } from '@/components/HistoryList'
@@ -71,7 +71,7 @@ export function CloudChartsPage() {
 
       {!configured && (
         <p className="text-[var(--color-muted)]">
-          雲端尚未設定（docs/ENV.example.md）。下方仍可使用本機歷史。
+          雲端 API 未就緒（docs/CLOUDFLARE_SETUP.md）。下方仍可使用本機歷史。
         </p>
       )}
       {configured && !loading && !user && (
